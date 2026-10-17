@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store
+# Ne jamais versionner d'images de patients
+*.dcm
+!tests/fixtures/*.dcm

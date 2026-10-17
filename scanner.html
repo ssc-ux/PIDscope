@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mon scanner · PIDscope</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="vendor/dicomParser.min.js"></script>
+  <script type="module" src="js/scanner.js"></script>
+</head>
+<body>
+  <header class="entete">
+    <a class="logo" href="./">PID<span>scope</span></a>
+    <nav>
+      <a href="./">Accueil</a>
+      <a href="cas.html">Cas</a>
+      <a href="scanner.html" aria-current="page">Mon scanner</a>
+    </nav>
+  </header>
+  <main>
+    <h1>Mon scanner</h1>
+    <div class="chargeur" id="chargeur">
+      <p><strong>Glissez ici un dossier DICOM ou des images JPEG/PNG</strong></p>
+      <div class="actions">
+        <label class="bouton bouton-principal">Choisir un dossier<input type="file" id="choix-dossier" webkitdirectory multiple hidden></label>
+        <label class="bouton">Choisir des fichiers<input type="file" id="choix-fichiers" multiple hidden></label>
+      </div>
+      <p>🔒 Les images restent sur cet appareil : elles ne sont jamais envoyées.</p>
+    </div>
+    <p class="etat" id="etat" role="status"></p>
+    <ul class="liste-series" id="series"></ul>
+
+    <div class="barre-comparaison" id="barre-comparaison" hidden>
+      <button type="button" id="ajouter-comparaison">Comparer avec un autre examen</button>
+      <label id="option-synchro" hidden><input type="checkbox" id="synchro" checked> Défilement synchronisé</label>
+      <button type="button" id="fermer-comparaison" hidden>Fermer la comparaison</button>
+    </div>
+    <div class="ecrans" id="ecrans">
+      <section class="ecran" hidden><div class="ecran-titre"></div><div class="vis"></div></section>
+      <section class="ecran" hidden><div class="ecran-titre"></div><div class="vis"></div></section>
+    </div>
+    <p class="aide" id="aide" hidden><span class="aide-souris">Molette, glisser ou flèches ↑↓ : changer de coupe · Ctrl + molette ou pincer : zoom · Maj + glisser : déplacer · clic droit + glisser : fenêtre · double-clic : réinitialiser</span><span class="aide-tactile">Glisser : changer de coupe · pincer : zoom · double-tap : réinitialiser</span></p>
+  </main>
+  <footer class="pied">Outil pédagogique, pas une aide au diagnostic · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr">CC BY-NC-SA 4.0</a></footer>
+</body>
+</html>

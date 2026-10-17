@@ -1,0 +1,10 @@
+{
+  "name": "pidscope",
+  "private": true,
+  "type": "module",
+  "description": "Apprendre à lire le scanner des PID de médecine interne",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "serve": "npx http-server -c-1 -p 8080 ."
+  }
+}
