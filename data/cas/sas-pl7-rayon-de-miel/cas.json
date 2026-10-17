@@ -1,0 +1,34 @@
+{
+  "id": "sas-pl7-rayon-de-miel",
+  "titre": "Syndrome des antisynthétases anti-PL-7 : rayon de miel en procubitus",
+  "description": "Figure publiée : Rayon de miel · Syndrome des antisynthétases",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Syndrome des antisynthétases"
+  ],
+  "patterns": [
+    "Rayon de miel",
+    "Réticulations"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Jawaid M et al. PL-7 Antisynthetase Syndrome in Association with Sjögren's, Systemic Lupus Erythematosus, and Rheumatoid Arthritis. Case reports in rheumatology, 2020",
+    "url": "https://doi.org/10.1155/2020/4736476",
+    "auteur": "Jawaid M, Ross Y, Kamran M.",
+    "licence": "CC BY",
+    "modifications": "Figures reproduites sans modification depuis PubMed Central (PMC7042534, PMC7042534) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 2,
+    "images": [
+      "images/01.jpg",
+      "images/02.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montrent les images\nScanner en **procubitus** d'une patiente avec syndrome des antisynthétases anti-PL-7 associé à d'autres connectivites :\n- **Image 1** : rayon de miel des régions antérieures des lobes supérieurs.\n- **Image 2** : rayon de miel et réticulations périphériques des bases.\n\n## À retenir\nLe procubitus distingue les lésions réelles des opacités de gravité. Le rayon de miel antérieur des lobes supérieurs correspond au **signe du lobe supérieur antérieur**, plus fréquent dans les PIC de connectivite (Chung JH et al. AJR 2018;210:307-13 (doi:10.2214/AJR.17.18384))."
+}

@@ -1,0 +1,34 @@
+{
+  "id": "sas-cas-clinique",
+  "titre": "Syndrome des antisynthétases : avant et après traitement",
+  "description": "Figure publiée : PINS · Syndrome des antisynthétases",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Syndrome des antisynthétases"
+  ],
+  "patterns": [
+    "PINS",
+    "Verre dépoli"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Rasendrakumar A et al. Early Recognition and Successful Treatment of Anti-synthetase Syndrome. Cureus, 2022",
+    "url": "https://doi.org/10.7759/cureus.21786",
+    "auteur": "Rasendrakumar A, Khanna A, Bakhai S.",
+    "licence": "CC BY",
+    "modifications": "Figures reproduites sans modification depuis PubMed Central (PMC8890853, PMC8890853) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 2,
+    "images": [
+      "images/01.jpg",
+      "images/02.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montrent les images\n- **Image 1** (A mi-thorax, B bases) : épaississement septal réticulaire et verre dépoli des lobes moyens et inférieurs (flèches rouges), adénopathies médiastinales (flèche verte).\n- **Image 2** : A avant traitement : verre dépoli et infiltrats bilatéraux en plages ; B après 2 ans de traitement : **régression** des infiltrats.\n\n## À retenir\nUne PID inflammatoire (verre dépoli sans fibrose évoluée) peut régresser sous traitement."
+}

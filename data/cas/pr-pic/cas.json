@@ -1,0 +1,33 @@
+{
+  "id": "pr-pic",
+  "titre": "Polyarthrite rhumatoïde : pattern PIC typique",
+  "description": "Figure publiée : PIC · Polyarthrite rhumatoïde",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Polyarthrite rhumatoïde"
+  ],
+  "patterns": [
+    "PIC",
+    "Rayon de miel"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Palmucci S et al. Clinical and radiological features of lung disorders related to connective-tissue diseases: a pictorial essay. Insights into imaging, 2022",
+    "url": "https://doi.org/10.1186/s13244-022-01243-2",
+    "auteur": "Palmucci S, Galioto F, Fazio G, Ferlito A, Cancemi G, Di Mari A, Sambataro G, Sambataro D, Zanframundo G, Mauro LA, Foti PV, Vancheri C, Basile A.",
+    "licence": "CC BY",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC9243214) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\nPatient de 72 ans atteint de polyarthrite rhumatoïde (**A, B** axial, **C** sagittal) : pattern **PIC** typique, basal et sous-pleural : rayon de miel (flèches noires), réticulations (flèches blanches) et bronchectasies de traction (flèche blanche vide en B).\n\n## À retenir\nLa PIC est le pattern le plus fréquent de la PID de la polyarthrite rhumatoïde."
+}

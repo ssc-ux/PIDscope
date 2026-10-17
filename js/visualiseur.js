@@ -240,7 +240,7 @@ export class Visualiseur {
     }
 
     const p = this.pile;
-    const lignes = [`Coupe ${this.index + 1} / ${p.nombre}`];
+    const lignes = [`${p.unite || 'Coupe'} ${this.index + 1} / ${p.nombre}`];
     const leg = p.legende(this.index);
     if (leg) lignes.push(leg);
     this.infoHaut.textContent = lignes.join('\n');

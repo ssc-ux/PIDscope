@@ -1,0 +1,34 @@
+{
+  "id": "sas-evolution-5-ans",
+  "titre": "Syndrome des antisynthétases : de la PINS + PO à la PIC en 5 ans",
+  "description": "Figure publiée : PINS + PO · Syndrome des antisynthétases",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Syndrome des antisynthétases"
+  ],
+  "patterns": [
+    "PINS + PO",
+    "PIC",
+    "Progression"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Mima M et al. Characteristics of chest high-resolution computed tomography in patients with anti-aminoacyl-tRNA synthetase antibody-positive interstitial lung disease. Sarcoidosis, vasculitis, and diffuse lung diseases : official journal of WASOG, 2024",
+    "url": "https://doi.org/10.36141/svdld.v41i1.14144",
+    "auteur": "Mima M, Sato S, Shinya T, Naito N, Shoji T, Harada S, Suzue R, Murakami K, Koyama K, Nishioka Y.",
+    "licence": "CC BY-NC-SA",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC11008333) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\nHomme de 47 ans, anti-EJ, bases pulmonaires :\n- **A** : pattern **PINS + PO** initial.\n- **B** : 8 mois après le début de l'immunosuppression : les condensations ont nettement régressé.\n- **C** : 3 ans : progression des réticulations à prédominance sous-pleurale.\n- **D** : 5 ans : apparition d'un **rayon de miel**, aspect de PIC certaine.\n\n## À retenir\nLa composante PO répond au traitement ; la fibrose peut pourtant progresser à long terme : surveillance prolongée."
+}

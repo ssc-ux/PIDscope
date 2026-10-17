@@ -3,6 +3,7 @@
 import { analyserFichiers, PileDicom, PileFichiersImage } from './piles.js';
 import { Visualiseur } from './visualiseur.js';
 import { creerPanneauEtendue } from './etendue.js';
+import { exporterCas } from './export-cas.js';
 
 const $ = (s) => document.querySelector(s);
 const etat = $('#etat');
@@ -16,6 +17,11 @@ const panneau = creerPanneauEtendue($('#etendue'), () => visualiseurs[actif]);
 
 function activer(i) {
   actif = i;
+  const pile = visualiseurs[i]?.pile;
+  $('#bloc-export').hidden = !pile?.calibre;
+  const type = pile?.serie?.coupes[0].entete.typeImage || '';
+  $('#export-alerte').hidden = !/SECONDARY|DERIVED|SCREEN/i.test(type);
+  $('#export-alerte').textContent = '⚠ Série dérivée ou capture d’écran : vérifiez qu’aucun texte (nom, date) n’est incrusté dans les images avant de diffuser.';
   $('#etendue-cible').textContent = visualiseurs[1] && !ecrans[1].hidden ? `examen ${i + 1}` : '';
   panneau.majDisponibilite();
 }
@@ -188,4 +194,29 @@ chargeur.addEventListener('drop', async (e) => {
   chargeur.classList.remove('survol');
   const entrees = [...e.dataTransfer.items].map((it) => it.webkitGetAsEntry?.()).filter(Boolean);
   traiter(entrees.length ? (await Promise.all(entrees.map(lireEntree))).flat() : e.dataTransfer.files);
+});
+
+$('#form-export').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const pile = visualiseurs[actif]?.pile;
+  if (!pile?.calibre) return;
+  const barre = $('#export-progression');
+  barre.hidden = false;
+  try {
+    const { zip, nom } = await exporterCas(pile, {
+      titre: f.get('titre').trim(), maladie: f.get('maladie'),
+      patterns: f.get('patterns').split(',').map((x) => x.trim()).filter(Boolean), texte: f.get('texte').trim(),
+    }, (v) => { barre.value = v; });
+    const lien = document.createElement('a');
+    lien.href = URL.createObjectURL(new Blob([zip], { type: 'application/zip' }));
+    lien.download = nom;
+    lien.click();
+    setTimeout(() => URL.revokeObjectURL(lien.href), 10000);
+    afficherEtat(`Archive ${nom} créée (${(zip.length / 1e6).toFixed(1)} Mo) : elle ne contient que des images, sans données DICOM.`);
+  } catch (err) {
+    afficherEtat(`Création impossible : ${err.message}`, true);
+  } finally {
+    barre.hidden = true;
+  }
 });

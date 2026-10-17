@@ -1,0 +1,33 @@
+{
+  "id": "ssc-respect-sous-pleural",
+  "titre": "Sclérodermie : PINS avec respect sous-pleural",
+  "description": "Figure publiée : PINS · Sclérodermie systémique",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Sclérodermie systémique"
+  ],
+  "patterns": [
+    "PINS",
+    "Respect sous-pleural"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Palmucci S et al. Clinical and radiological features of lung disorders related to connective-tissue diseases: a pictorial essay. Insights into imaging, 2022",
+    "url": "https://doi.org/10.1186/s13244-022-01243-2",
+    "auteur": "Palmucci S, Galioto F, Fazio G, Ferlito A, Cancemi G, Di Mari A, Sambataro G, Sambataro D, Zanframundo G, Mauro LA, Foti PV, Vancheri C, Basile A.",
+    "licence": "CC BY",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC9243214) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\n- **A (axial), B (sagittal)** : verre dépoli à prédominance basale, périphérique et sous-pleurale (flèches blanches).\n- Les lésions **respectent la zone immédiatement sous-pleurale**, bien visible au lobe inférieur gauche (A).\n\n## À retenir\nLe respect sous-pleural est un argument fort pour une PINS plutôt qu'une PIC."
+}

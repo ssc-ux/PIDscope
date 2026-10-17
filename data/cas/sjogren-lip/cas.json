@@ -1,0 +1,34 @@
+{
+  "id": "sjogren-lip",
+  "titre": "Syndrome de Sjögren : pneumopathie interstitielle lymphoïde",
+  "description": "Figure publiée : LIP · Syndrome de Sjögren",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Syndrome de Sjögren"
+  ],
+  "patterns": [
+    "LIP",
+    "Nodules",
+    "Condensation"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Jeon H et al. Radiologic approach and progressive exploration of connective tissue disease-related interstitial lung disease: meeting the curiosity of rheumatologists. Journal of rheumatic diseases, 2024",
+    "url": "https://doi.org/10.4078/jrd.2023.0042",
+    "auteur": "Jeon H, Nam BD, Yoon CH, Kim HS.",
+    "licence": "CC BY-NC",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC10730800) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\nFemme de 61 ans, syndrome de Sjögren primitif, **pneumopathie interstitielle lymphoïde prouvée par biopsie** :\n- **A** : condensations sous-pleurales ou péri-bronchiques avec verre dépoli, et multiples nodules non calcifiés bilatéraux.\n- **B** : condensations nodulaires ou sous-pleurales avec épaississement septal et bronchiolectasies de traction aux lobes inférieurs.\n\n## À retenir\nLa LIP du Sjögren associe classiquement verre dépoli, nodules et kystes ; une biopsie peut être nécessaire (diagnostic différentiel : lymphome)."
+}

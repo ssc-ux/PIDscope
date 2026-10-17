@@ -1,5 +1,370 @@
 [
   {
+    "id": "ssc-pins-verre-depoli",
+    "titre": "Sclérodermie : PINS (verre dépoli basal) et œsophage dilaté",
+    "description": "Figure publiée : PINS · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "PINS",
+      "Verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "ssc-pic-oesophage",
+    "titre": "Sclérodermie : pattern PIC",
+    "description": "Figure publiée : PIC · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "PIC",
+      "Rayon de miel"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "ssc-pins-fibrosante",
+    "titre": "Sclérodermie évoluée : PINS fibrosante",
+    "description": "Figure publiée : PINS fibrosante · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "PINS fibrosante",
+      "Bronchectasies de traction"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "ssc-debut-procubitus",
+    "titre": "Sclérodermie débutante : l'intérêt du procubitus",
+    "description": "Figure publiée : PINS · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "PINS",
+      "Verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "ssc-pic-straight-edge",
+    "titre": "Sclérodermie : PIC et signe du « straight-edge »",
+    "description": "Figure publiée : PIC · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "PIC",
+      "Rayon de miel"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "ssc-pins-progression",
+    "titre": "Sclérodermie : PINS fibrosante qui progresse en 3 ans",
+    "description": "Figure publiée : PINS fibrosante · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "PINS fibrosante",
+      "Progression"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "ssc-pins-vers-pic-8-ans",
+    "titre": "Sclérodermie : de la PINS à la PIC en 8 ans",
+    "description": "Figure publiée : PINS · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "PINS",
+      "PIC",
+      "Progression"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "ssc-bronchectasies-centrales",
+    "titre": "Sclérodermie : bronchectasies de traction centrales et PIC périphérique",
+    "description": "Figure publiée : Bronchectasies de traction · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Bronchectasies de traction",
+      "PIC"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "ssc-respect-sous-pleural",
+    "titre": "Sclérodermie : PINS avec respect sous-pleural",
+    "description": "Figure publiée : PINS · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "PINS",
+      "Respect sous-pleural"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "ssc-pins-coronal-oesophage",
+    "titre": "Sclérodermie : réticulations, respect sous-pleural et œsophage dilaté",
+    "description": "Figure publiée : PINS fibrosante · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "PINS fibrosante",
+      "Respect sous-pleural"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "ssc-formes-debutantes",
+    "titre": "Sclérodermie : verre dépoli basal et opacités déclives",
+    "description": "Figure publiée : PINS · Sclérodermie systémique",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "PINS",
+      "Verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "sas-patterns-pins-po",
+    "titre": "Syndrome des antisynthétases : PINS, PINS + PO, PO et DAD",
+    "description": "Figure publiée : PINS · Syndrome des antisynthétases",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Syndrome des antisynthétases"
+    ],
+    "patterns": [
+      "PINS",
+      "PINS + PO",
+      "PO",
+      "DAD"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "sas-pic",
+    "titre": "Syndrome des antisynthétases : pattern PIC",
+    "description": "Figure publiée : PIC · Syndrome des antisynthétases",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Syndrome des antisynthétases"
+    ],
+    "patterns": [
+      "PIC"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "sas-evolution-5-ans",
+    "titre": "Syndrome des antisynthétases : de la PINS + PO à la PIC en 5 ans",
+    "description": "Figure publiée : PINS + PO · Syndrome des antisynthétases",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Syndrome des antisynthétases"
+    ],
+    "patterns": [
+      "PINS + PO",
+      "PIC",
+      "Progression"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "mda5-pid-rapidement-progressive",
+    "titre": "Dermatomyosite anti-MDA5 : PID rapidement progressive",
+    "description": "Figure publiée : Verre dépoli diffus · Dermatomyosite anti-MDA5",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Dermatomyosite anti-MDA5"
+    ],
+    "patterns": [
+      "Verre dépoli diffus",
+      "PID rapidement progressive"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "mda5-evolution",
+    "titre": "Dermatomyosite anti-MDA5 : aggravation sous traitement",
+    "description": "Figure publiée : Verre dépoli · Dermatomyosite anti-MDA5",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Dermatomyosite anti-MDA5"
+    ],
+    "patterns": [
+      "Verre dépoli",
+      "Réticulations",
+      "Condensation"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "polymyosite-pins-po",
+    "titre": "Polymyosite : PINS ou PO péri-bronchovasculaire",
+    "description": "Figure publiée : PINS · Myopathies inflammatoires",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Myopathies inflammatoires"
+    ],
+    "patterns": [
+      "PINS",
+      "PO"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "myosite-pins-po-progressive",
+    "titre": "Myosite : PINS-PO progressive sur 2 ans",
+    "description": "Figure publiée : PINS + PO · Myopathies inflammatoires",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Myopathies inflammatoires"
+    ],
+    "patterns": [
+      "PINS + PO",
+      "Progression"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "sas-cas-clinique",
+    "titre": "Syndrome des antisynthétases : avant et après traitement",
+    "description": "Figure publiée : PINS · Syndrome des antisynthétases",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Syndrome des antisynthétases"
+    ],
+    "patterns": [
+      "PINS",
+      "Verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "sas-pl7-rayon-de-miel",
+    "titre": "Syndrome des antisynthétases anti-PL-7 : rayon de miel en procubitus",
+    "description": "Figure publiée : Rayon de miel · Syndrome des antisynthétases",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Syndrome des antisynthétases"
+    ],
+    "patterns": [
+      "Rayon de miel",
+      "Réticulations"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "pr-pic",
+    "titre": "Polyarthrite rhumatoïde : pattern PIC typique",
+    "description": "Figure publiée : PIC · Polyarthrite rhumatoïde",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Polyarthrite rhumatoïde"
+    ],
+    "patterns": [
+      "PIC",
+      "Rayon de miel"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "pr-pins",
+    "titre": "Polyarthrite rhumatoïde : pattern PINS",
+    "description": "Figure publiée : PINS · Polyarthrite rhumatoïde",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Polyarthrite rhumatoïde"
+    ],
+    "patterns": [
+      "PINS",
+      "Verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "pr-rayon-de-miel-exuberant",
+    "titre": "Polyarthrite rhumatoïde : rayon de miel exubérant",
+    "description": "Figure publiée : PIC · Polyarthrite rhumatoïde",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Polyarthrite rhumatoïde"
+    ],
+    "patterns": [
+      "PIC",
+      "Rayon de miel"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
+    "id": "sjogren-lip",
+    "titre": "Syndrome de Sjögren : pneumopathie interstitielle lymphoïde",
+    "description": "Figure publiée : LIP · Syndrome de Sjögren",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Syndrome de Sjögren"
+    ],
+    "patterns": [
+      "LIP",
+      "Nodules",
+      "Condensation"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · ARTICLE"
+  },
+  {
     "id": "normal-hrct",
     "titre": "Scanner thoracique normal en haute résolution",
     "description": "Le poumon normal coupe par coupe : repères anatomiques et niveaux du score de Goh.",

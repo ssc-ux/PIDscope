@@ -1,0 +1,33 @@
+{
+  "id": "ssc-pic-oesophage",
+  "titre": "Sclérodermie : pattern PIC",
+  "description": "Figure publiée : PIC · Sclérodermie systémique",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Sclérodermie systémique"
+  ],
+  "patterns": [
+    "PIC",
+    "Rayon de miel"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Ruaro B et al. High-Resolution Computed Tomography and Lung Ultrasound in Patients with Systemic Sclerosis: Which One to Choose? Diagnostics (Basel, Switzerland), 2021",
+    "url": "https://doi.org/10.3390/diagnostics11122293",
+    "auteur": "Ruaro B, Baratella E, Confalonieri P, Confalonieri M, Vassallo FG, Wade B, Geri P, Pozzan R, Caforio G, Marrocchio C, Cova MA, Salton F.",
+    "licence": "CC BY",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC8700001) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\n- **A, B (deux niveaux)** : réticulations bilatérales avec épaississement des septa inter- et intralobulaires, à prédominance périphérique, bronchectasies de traction, verre dépoli et **rayon de miel** : pattern de PIC.\n- **C (fenêtre médiastinale)** : œsophage dilaté avec niveau hydro-aérique (flèche).\n\n## À retenir\nLa PIC est moins fréquente que la PINS dans la sclérodermie mais existe ; l'œsophage dilaté oriente vers la sclérodermie."
+}

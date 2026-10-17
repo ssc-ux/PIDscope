@@ -1,0 +1,33 @@
+{
+  "id": "polymyosite-pins-po",
+  "titre": "Polymyosite : PINS ou PO péri-bronchovasculaire",
+  "description": "Figure publiée : PINS · Myopathies inflammatoires",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Myopathies inflammatoires"
+  ],
+  "patterns": [
+    "PINS",
+    "PO"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Jeon H et al. Radiologic approach and progressive exploration of connective tissue disease-related interstitial lung disease: meeting the curiosity of rheumatologists. Journal of rheumatic diseases, 2024",
+    "url": "https://doi.org/10.4078/jrd.2023.0042",
+    "auteur": "Jeon H, Nam BD, Yoon CH, Kim HS.",
+    "licence": "CC BY-NC",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC10730800) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\nHomme de 67 ans atteint de polymyosite (**A** axial, **B** coronal) : verre dépoli et réticulations à prédominance **péri-bronchovasculaire et basale**. Le diagnostic différentiel se pose entre PINS et PO.\n\n## À retenir\nLa distribution péri-bronchovasculaire et basale est typique des PID des myopathies inflammatoires."
+}

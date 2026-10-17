@@ -27,6 +27,10 @@ async function demarrer() {
     vignette: `data/cas/${encodeURIComponent(c.id)}/vignette.webp`,
     etiquette: c.etiquette || 'TDM',
   }));
+  // Les cas de connectivite sont regroupés par maladie pour le filtre.
+  const GROUPES = { 'Sclérodermie systémique': 'Sclérodermie', 'Syndrome des antisynthétases': 'Myosites', 'Dermatomyosite anti-MDA5': 'Myosites',
+    'Myopathies inflammatoires': 'Myosites', 'Polyarthrite rhumatoïde': 'Polyarthrite rhumatoïde', 'Syndrome de Sjögren': 'Sjögren' };
+  for (const c of cas) if (c.categorie === 'Connectivités') c.categorie = GROUPES[c.maladies?.[0]] || 'Autres connectivites';
   const tout = [...cas, ...OUTILS];
   const categories = ['Tout', ...new Set(tout.map((c) => c.categorie))];
   let choix = 'Tout';

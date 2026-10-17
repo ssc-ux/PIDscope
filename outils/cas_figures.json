@@ -1,0 +1,325 @@
+[
+ {
+  "id": "ssc-pins-verre-depoli",
+  "fig": "004",
+  "titre": "Sclérodermie : PINS (verre dépoli basal) et œsophage dilaté",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "PINS",
+   "Verre dépoli"
+  ],
+  "texte": "## Ce que montre la figure\n- **A (axial)** : verre dépoli diffus, bilatéral et symétrique.\n- **B (coronal)** : prédominance basale des lésions, mieux vue en reconstruction coronale.\n- **Œsophage dilaté** (flèche en A) : signe associé important de la sclérodermie.\n\n## À retenir\nVerre dépoli bilatéral, symétrique, basal : aspect typique de PINS. Toujours chercher l'œsophage dilaté sur le scanner d'une PID."
+ },
+ {
+  "id": "ssc-pic-oesophage",
+  "fig": "005",
+  "titre": "Sclérodermie : pattern PIC",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "PIC",
+   "Rayon de miel"
+  ],
+  "texte": "## Ce que montre la figure\n- **A, B (deux niveaux)** : réticulations bilatérales avec épaississement des septa inter- et intralobulaires, à prédominance périphérique, bronchectasies de traction, verre dépoli et **rayon de miel** : pattern de PIC.\n- **C (fenêtre médiastinale)** : œsophage dilaté avec niveau hydro-aérique (flèche).\n\n## À retenir\nLa PIC est moins fréquente que la PINS dans la sclérodermie mais existe ; l'œsophage dilaté oriente vers la sclérodermie."
+ },
+ {
+  "id": "ssc-pins-fibrosante",
+  "fig": "006",
+  "titre": "Sclérodermie évoluée : PINS fibrosante",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "PINS fibrosante",
+   "Bronchectasies de traction"
+  ],
+  "texte": "## Ce que montre la figure\n- **a (axial), b (sagittal)** : verre dépoli bilatéral étendu (*), périphérique et symétrique.\n- Signes de fibrose : **réticulations** (flèches noires) et **bronchectasies de traction** (flèches blanches).\n\n## À retenir\nVerre dépoli + bronchectasies de traction = PINS **fibrosante** : le verre dépoli traduit ici surtout une fibrose fine, pas seulement une inflammation."
+ },
+ {
+  "id": "ssc-debut-procubitus",
+  "fig": "014",
+  "titre": "Sclérodermie débutante : l'intérêt du procubitus",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "PINS",
+   "Verre dépoli"
+  ],
+  "texte": "## Ce que montre la figure\nFemme de 42 ans atteinte de sclérodermie.\n- **a (décubitus)** : verre dépoli discret dans les régions périphériques des bases (flèches).\n- **b (procubitus)** : le verre dépoli **persiste** : il est lié à la maladie (PINS), et non à la gravité.\n\n## À retenir\nUne densité déclive qui disparaît en procubitus est physiologique ; si elle persiste, c'est une atteinte interstitielle débutante."
+ },
+ {
+  "id": "ssc-pic-straight-edge",
+  "fig": "008",
+  "titre": "Sclérodermie : PIC et signe du « straight-edge »",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "PIC",
+   "Rayon de miel"
+  ],
+  "texte": "## Ce que montre la figure\nReconstruction coronale d'une PIC de sclérodermie : la fibrose prédomine aux bases avec une **limite cranio-caudale nette et horizontale** (flèches) : signe du « straight-edge ».\n\n## À retenir\nDevant un pattern de PIC, le signe du straight-edge oriente vers une connectivite plutôt qu'une FPI (spécificité 94 %, sensibilité 25 % ; Chung JH et al. AJR 2018;210:307-13 (doi:10.2214/AJR.17.18384))."
+ },
+ {
+  "id": "ssc-pins-progression",
+  "fig": "009",
+  "titre": "Sclérodermie : PINS fibrosante qui progresse en 3 ans",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "PINS fibrosante",
+   "Progression"
+  ],
+  "texte": "## Ce que montre la figure\n- **A** : bilan initial d'une PINS fibrosante de sclérodermie.\n- **B** : 3 ans plus tard, progression de la fibrose : **bronchectasies de traction plus étendues** et réticulations plus marquées.\n\n## À retenir\nL'extension des bronchectasies de traction et des réticulations fait partie des critères radiologiques de **fibrose pulmonaire progressive** (ATS/ERS/JRS/ALAT 2022)."
+ },
+ {
+  "id": "ssc-pins-vers-pic-8-ans",
+  "fig": "012",
+  "titre": "Sclérodermie : de la PINS à la PIC en 8 ans",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "PINS",
+   "PIC",
+   "Progression"
+  ],
+  "texte": "## Ce que montre la figure\nScanners successifs sur 8 ans chez une femme de 57 ans atteinte de sclérodermie.\n- **En haut à gauche** : aspect initial très évocateur de PINS.\n- **En bas à droite** (le plus récent) : fibrose évoluée avec **rayon de miel** (flèche noire), aspect proche d'une PIC.\n\n## À retenir\nLe pattern peut évoluer : une PINS peut prendre l'aspect d'une PIC. Comparer les examens successifs (onglet Étendue, ou « Comparer » dans Mon scanner)."
+ },
+ {
+  "id": "ssc-bronchectasies-centrales",
+  "fig": "013",
+  "titre": "Sclérodermie : bronchectasies de traction centrales et PIC périphérique",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "Bronchectasies de traction",
+   "PIC"
+  ],
+  "texte": "## Ce que montre la figure\n- **a** : deux patients avec PID de sclérodermie : **bronchectasies de traction centrales** (cercles noirs).\n- **b** : PID de sclérodermie avec fibrose de pattern **PIC périphérique**.\n\n## À retenir\nLes bronchectasies de traction signent la fibrose ; elles peuvent être centrales, pas seulement sous-pleurales."
+ },
+ {
+  "id": "ssc-respect-sous-pleural",
+  "fig": "M020",
+  "titre": "Sclérodermie : PINS avec respect sous-pleural",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "PINS",
+   "Respect sous-pleural"
+  ],
+  "texte": "## Ce que montre la figure\n- **A (axial), B (sagittal)** : verre dépoli à prédominance basale, périphérique et sous-pleurale (flèches blanches).\n- Les lésions **respectent la zone immédiatement sous-pleurale**, bien visible au lobe inférieur gauche (A).\n\n## À retenir\nLe respect sous-pleural est un argument fort pour une PINS plutôt qu'une PIC."
+ },
+ {
+  "id": "ssc-pins-coronal-oesophage",
+  "fig": "020",
+  "titre": "Sclérodermie : réticulations, respect sous-pleural et œsophage dilaté",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "PINS fibrosante",
+   "Respect sous-pleural"
+  ],
+  "texte": "## Ce que montre la figure\nFemme de 44 ans atteinte de sclérodermie.\n- Réticulations, verre dépoli et bronchiolectasies de traction, **périphériques et basaux**, avec distorsion architecturale ; **respect sous-pleural immédiat** bien visible.\n- **A (coronal)** : bronchiolectasies de traction ; dilatation de l'œsophage thoracique supérieur.\n- Peu de rayon de miel.\n\n## À retenir\nAssociation typique de la sclérodermie : PINS fibrosante + respect sous-pleural + œsophage dilaté."
+ },
+ {
+  "id": "ssc-formes-debutantes",
+  "fig": "011",
+  "titre": "Sclérodermie : verre dépoli basal et opacités déclives",
+  "maladies": [
+   "Sclérodermie systémique"
+  ],
+  "patterns": [
+   "PINS",
+   "Verre dépoli"
+  ],
+  "texte": "## Ce que montre la figure\n- **a** : femme de 52 ans : verre dépoli diffus à prédominance basale, évocateur de PINS.\n- **b** : deux patients : verre dépoli basal, périphérique à gauche (flèches blanches), plus diffus à droite.\n- **c** : opacités déclives des bases (pointes noires) qui **persistent à droite en procubitus** (pointe blanche) : fibrose interstitielle débutante.\n- **d** : femme de 57 ans : verre dépoli et réticulations de distribution péri-bronchovasculaire et sous-pleurale au lobe inférieur.\n\n## À retenir\nLe verre dépoli à prédominance basale est le signe dominant de la PINS ; le procubitus distingue l'atteinte réelle des opacités de gravité."
+ },
+ {
+  "id": "sas-patterns-pins-po",
+  "fig": "051",
+  "titre": "Syndrome des antisynthétases : PINS, PINS + PO, PO et DAD",
+  "maladies": [
+   "Syndrome des antisynthétases"
+  ],
+  "patterns": [
+   "PINS",
+   "PINS + PO",
+   "PO",
+   "DAD"
+  ],
+  "texte": "## Ce que montre la figure\nPID de patients avec anticorps anti-ARS (antisynthétases) :\n- **A** : homme de 69 ans : pattern **PINS**.\n- **B** : homme de 47 ans, anti-EJ : **PINS + pneumonie organisée (PO)**.\n- **C** : homme de 40 ans, anti-PL-7 : pattern **PO**.\n- **D** : femme de 79 ans, anti-EJ : **dommage alvéolaire diffus (DAD)**.\n\n## À retenir\nLe syndrome des antisynthétases peut donner tout le spectre : PINS, PINS + PO, PO, et DAD dans les formes aiguës graves."
+ },
+ {
+  "id": "sas-pic",
+  "fig": "052",
+  "titre": "Syndrome des antisynthétases : pattern PIC",
+  "maladies": [
+   "Syndrome des antisynthétases"
+  ],
+  "patterns": [
+   "PIC"
+  ],
+  "texte": "## Ce que montre la figure\nPattern **PIC** chez quatre patients avec anticorps anti-ARS :\n- **A** : homme de 56 ans, anti-Jo-1.\n- **B** : homme de 69 ans, anti-EJ et anti-PL-7.\n- **C** : homme de 64 ans, anti-EJ.\n- **D** : femme de 66 ans, autre anticorps anti-ARS.\n\n## À retenir\nUn pattern PIC n'exclut pas une myosite : chercher les anticorps anti-synthétases devant toute PID."
+ },
+ {
+  "id": "sas-evolution-5-ans",
+  "fig": "053",
+  "titre": "Syndrome des antisynthétases : de la PINS + PO à la PIC en 5 ans",
+  "maladies": [
+   "Syndrome des antisynthétases"
+  ],
+  "patterns": [
+   "PINS + PO",
+   "PIC",
+   "Progression"
+  ],
+  "texte": "## Ce que montre la figure\nHomme de 47 ans, anti-EJ, bases pulmonaires :\n- **A** : pattern **PINS + PO** initial.\n- **B** : 8 mois après le début de l'immunosuppression : les condensations ont nettement régressé.\n- **C** : 3 ans : progression des réticulations à prédominance sous-pleurale.\n- **D** : 5 ans : apparition d'un **rayon de miel**, aspect de PIC certaine.\n\n## À retenir\nLa composante PO répond au traitement ; la fibrose peut pourtant progresser à long terme : surveillance prolongée."
+ },
+ {
+  "id": "mda5-pid-rapidement-progressive",
+  "fig": "054",
+  "titre": "Dermatomyosite anti-MDA5 : PID rapidement progressive",
+  "maladies": [
+   "Dermatomyosite anti-MDA5"
+  ],
+  "patterns": [
+   "Verre dépoli diffus",
+   "PID rapidement progressive"
+  ],
+  "texte": "## Ce que montre la figure\nScanner réalisé lors d'une dégradation respiratoire brutale chez une patiente avec dermatomyosite amyopathique anti-MDA5 : **verre dépoli diffus et étendu** traduisant une PID rapidement progressive.\n\n## À retenir\nDermatomyosite anti-MDA5 + verre dépoli ou condensations d'extension rapide : évoquer une PID rapidement progressive."
+ },
+ {
+  "id": "mda5-evolution",
+  "fig": "055",
+  "titre": "Dermatomyosite anti-MDA5 : aggravation sous traitement",
+  "maladies": [
+   "Dermatomyosite anti-MDA5"
+  ],
+  "patterns": [
+   "Verre dépoli",
+   "Réticulations",
+   "Condensation"
+  ],
+  "texte": "## Ce que montre la figure\n- **A** : réticulations périphériques discrètes et verre dépoli bilatéral au début des symptômes.\n- **B** : aggravation des réticulations et du verre dépoli au diagnostic de dermatomyosite anti-MDA5.\n- **C** : 1 mois après le traitement d'induction : nouvelle condensation le long de la scissure droite, épanchement pleural gauche accru, aggravation des réticulations et du verre dépoli.\n\n## À retenir\nL'atteinte anti-MDA5 peut s'aggraver malgré le traitement : suivi scanographique rapproché."
+ },
+ {
+  "id": "polymyosite-pins-po",
+  "fig": "022",
+  "titre": "Polymyosite : PINS ou PO péri-bronchovasculaire",
+  "maladies": [
+   "Myopathies inflammatoires"
+  ],
+  "patterns": [
+   "PINS",
+   "PO"
+  ],
+  "texte": "## Ce que montre la figure\nHomme de 67 ans atteint de polymyosite (**A** axial, **B** coronal) : verre dépoli et réticulations à prédominance **péri-bronchovasculaire et basale**. Le diagnostic différentiel se pose entre PINS et PO.\n\n## À retenir\nLa distribution péri-bronchovasculaire et basale est typique des PID des myopathies inflammatoires."
+ },
+ {
+  "id": "myosite-pins-po-progressive",
+  "fig": "M010",
+  "titre": "Myosite : PINS-PO progressive sur 2 ans",
+  "maladies": [
+   "Myopathies inflammatoires"
+  ],
+  "patterns": [
+   "PINS + PO",
+   "Progression"
+  ],
+  "texte": "## Ce que montre la figure\n- **a** : au début : opacités linéaires irrégulières, réticulations sous-pleurales et condensations (pattern PINS-PO).\n- **b** : 12 mois plus tard : réticulations sous-pleurales plus étendues.\n- **c** : 24 mois : extension de l'atteinte interstitielle avec verre dépoli.\n\n## À retenir\nExemple de PID progressive au cours d'une myopathie inflammatoire : comparer systématiquement aux examens antérieurs."
+ },
+ {
+  "id": "sas-cas-clinique",
+  "fig": [
+   "049",
+   "050"
+  ],
+  "titre": "Syndrome des antisynthétases : avant et après traitement",
+  "maladies": [
+   "Syndrome des antisynthétases"
+  ],
+  "patterns": [
+   "PINS",
+   "Verre dépoli"
+  ],
+  "texte": "## Ce que montrent les images\n- **Image 1** (A mi-thorax, B bases) : épaississement septal réticulaire et verre dépoli des lobes moyens et inférieurs (flèches rouges), adénopathies médiastinales (flèche verte).\n- **Image 2** : A avant traitement : verre dépoli et infiltrats bilatéraux en plages ; B après 2 ans de traitement : **régression** des infiltrats.\n\n## À retenir\nUne PID inflammatoire (verre dépoli sans fibrose évoluée) peut régresser sous traitement."
+ },
+ {
+  "id": "sas-pl7-rayon-de-miel",
+  "fig": [
+   "046",
+   "047"
+  ],
+  "titre": "Syndrome des antisynthétases anti-PL-7 : rayon de miel en procubitus",
+  "maladies": [
+   "Syndrome des antisynthétases"
+  ],
+  "patterns": [
+   "Rayon de miel",
+   "Réticulations"
+  ],
+  "texte": "## Ce que montrent les images\nScanner en **procubitus** d'une patiente avec syndrome des antisynthétases anti-PL-7 associé à d'autres connectivites :\n- **Image 1** : rayon de miel des régions antérieures des lobes supérieurs.\n- **Image 2** : rayon de miel et réticulations périphériques des bases.\n\n## À retenir\nLe procubitus distingue les lésions réelles des opacités de gravité. Le rayon de miel antérieur des lobes supérieurs correspond au **signe du lobe supérieur antérieur**, plus fréquent dans les PIC de connectivite (Chung JH et al. AJR 2018;210:307-13 (doi:10.2214/AJR.17.18384))."
+ },
+ {
+  "id": "pr-pic",
+  "fig": "M016",
+  "titre": "Polyarthrite rhumatoïde : pattern PIC typique",
+  "maladies": [
+   "Polyarthrite rhumatoïde"
+  ],
+  "patterns": [
+   "PIC",
+   "Rayon de miel"
+  ],
+  "texte": "## Ce que montre la figure\nPatient de 72 ans atteint de polyarthrite rhumatoïde (**A, B** axial, **C** sagittal) : pattern **PIC** typique, basal et sous-pleural : rayon de miel (flèches noires), réticulations (flèches blanches) et bronchectasies de traction (flèche blanche vide en B).\n\n## À retenir\nLa PIC est le pattern le plus fréquent de la PID de la polyarthrite rhumatoïde."
+ },
+ {
+  "id": "pr-pins",
+  "fig": "M018",
+  "titre": "Polyarthrite rhumatoïde : pattern PINS",
+  "maladies": [
+   "Polyarthrite rhumatoïde"
+  ],
+  "patterns": [
+   "PINS",
+   "Verre dépoli"
+  ],
+  "texte": "## Ce que montre la figure\nPolyarthrite rhumatoïde, pattern **PINS** (**A, B**) : plages de verre dépoli (flèches blanches vides) de distribution **hétérogène**, alternant avec des zones de poumon normal.\n\n## À retenir\nLa PINS existe aussi dans la polyarthrite rhumatoïde, moins souvent que la PIC."
+ },
+ {
+  "id": "pr-rayon-de-miel-exuberant",
+  "fig": "M019",
+  "titre": "Polyarthrite rhumatoïde : rayon de miel exubérant",
+  "maladies": [
+   "Polyarthrite rhumatoïde"
+  ],
+  "patterns": [
+   "PIC",
+   "Rayon de miel"
+  ],
+  "texte": "## Ce que montre la figure\nPolyarthrite rhumatoïde (**A, C** axial, **B** coronal, **D** sagittal) : rayon de miel « florissant » occupant **plus de 50 % du poumon**, fait d'espaces macrokystiques (flèches blanches) : signe du « rayon de miel exubérant ».\n\n## À retenir\nLe rayon de miel exubérant, comme le straight-edge et le signe du lobe supérieur antérieur, est plus fréquent dans les PIC de connectivite que dans la FPI (Chung JH et al. AJR 2018;210:307-13 (doi:10.2214/AJR.17.18384))."
+ },
+ {
+  "id": "sjogren-lip",
+  "fig": "021",
+  "titre": "Syndrome de Sjögren : pneumopathie interstitielle lymphoïde",
+  "maladies": [
+   "Syndrome de Sjögren"
+  ],
+  "patterns": [
+   "LIP",
+   "Nodules",
+   "Condensation"
+  ],
+  "texte": "## Ce que montre la figure\nFemme de 61 ans, syndrome de Sjögren primitif, **pneumopathie interstitielle lymphoïde prouvée par biopsie** :\n- **A** : condensations sous-pleurales ou péri-bronchiques avec verre dépoli, et multiples nodules non calcifiés bilatéraux.\n- **B** : condensations nodulaires ou sous-pleurales avec épaississement septal et bronchiolectasies de traction aux lobes inférieurs.\n\n## À retenir\nLa LIP du Sjögren associe classiquement verre dépoli, nodules et kystes ; une biopsie peut être nécessaire (diagnostic différentiel : lymphome)."
+ }
+]

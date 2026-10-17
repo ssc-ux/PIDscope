@@ -1,0 +1,33 @@
+{
+  "id": "pr-pins",
+  "titre": "Polyarthrite rhumatoïde : pattern PINS",
+  "description": "Figure publiée : PINS · Polyarthrite rhumatoïde",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Polyarthrite rhumatoïde"
+  ],
+  "patterns": [
+    "PINS",
+    "Verre dépoli"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Palmucci S et al. Clinical and radiological features of lung disorders related to connective-tissue diseases: a pictorial essay. Insights into imaging, 2022",
+    "url": "https://doi.org/10.1186/s13244-022-01243-2",
+    "auteur": "Palmucci S, Galioto F, Fazio G, Ferlito A, Cancemi G, Di Mari A, Sambataro G, Sambataro D, Zanframundo G, Mauro LA, Foti PV, Vancheri C, Basile A.",
+    "licence": "CC BY",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC9243214) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\nPolyarthrite rhumatoïde, pattern **PINS** (**A, B**) : plages de verre dépoli (flèches blanches vides) de distribution **hétérogène**, alternant avec des zones de poumon normal.\n\n## À retenir\nLa PINS existe aussi dans la polyarthrite rhumatoïde, moins souvent que la PIC."
+}

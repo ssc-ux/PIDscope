@@ -1,0 +1,35 @@
+{
+  "id": "sas-patterns-pins-po",
+  "titre": "Syndrome des antisynthétases : PINS, PINS + PO, PO et DAD",
+  "description": "Figure publiée : PINS · Syndrome des antisynthétases",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Syndrome des antisynthétases"
+  ],
+  "patterns": [
+    "PINS",
+    "PINS + PO",
+    "PO",
+    "DAD"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Mima M et al. Characteristics of chest high-resolution computed tomography in patients with anti-aminoacyl-tRNA synthetase antibody-positive interstitial lung disease. Sarcoidosis, vasculitis, and diffuse lung diseases : official journal of WASOG, 2024",
+    "url": "https://doi.org/10.36141/svdld.v41i1.14144",
+    "auteur": "Mima M, Sato S, Shinya T, Naito N, Shoji T, Harada S, Suzue R, Murakami K, Koyama K, Nishioka Y.",
+    "licence": "CC BY-NC-SA",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC11008333) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\nPID de patients avec anticorps anti-ARS (antisynthétases) :\n- **A** : homme de 69 ans : pattern **PINS**.\n- **B** : homme de 47 ans, anti-EJ : **PINS + pneumonie organisée (PO)**.\n- **C** : homme de 40 ans, anti-PL-7 : pattern **PO**.\n- **D** : femme de 79 ans, anti-EJ : **dommage alvéolaire diffus (DAD)**.\n\n## À retenir\nLe syndrome des antisynthétases peut donner tout le spectre : PINS, PINS + PO, PO, et DAD dans les formes aiguës graves."
+}

@@ -1,0 +1,33 @@
+{
+  "id": "ssc-bronchectasies-centrales",
+  "titre": "Sclérodermie : bronchectasies de traction centrales et PIC périphérique",
+  "description": "Figure publiée : Bronchectasies de traction · Sclérodermie systémique",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Sclérodermie systémique"
+  ],
+  "patterns": [
+    "Bronchectasies de traction",
+    "PIC"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Chatterjee S et al. Viewpoint: a multidisciplinary approach to the assessment of patients with systemic sclerosis-associated interstitial lung disease. Clinical rheumatology, 2023",
+    "url": "https://doi.org/10.1007/s10067-022-06408-4",
+    "auteur": "Chatterjee S, Perelas A, Yadav R, Kirby DF, Singh A.",
+    "licence": "CC BY",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC9935731) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\n- **a** : deux patients avec PID de sclérodermie : **bronchectasies de traction centrales** (cercles noirs).\n- **b** : PID de sclérodermie avec fibrose de pattern **PIC périphérique**.\n\n## À retenir\nLes bronchectasies de traction signent la fibrose ; elles peuvent être centrales, pas seulement sous-pleurales."
+}

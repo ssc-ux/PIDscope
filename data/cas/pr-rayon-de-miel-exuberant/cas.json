@@ -1,0 +1,33 @@
+{
+  "id": "pr-rayon-de-miel-exuberant",
+  "titre": "Polyarthrite rhumatoïde : rayon de miel exubérant",
+  "description": "Figure publiée : PIC · Polyarthrite rhumatoïde",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Polyarthrite rhumatoïde"
+  ],
+  "patterns": [
+    "PIC",
+    "Rayon de miel"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Palmucci S et al. Clinical and radiological features of lung disorders related to connective-tissue diseases: a pictorial essay. Insights into imaging, 2022",
+    "url": "https://doi.org/10.1186/s13244-022-01243-2",
+    "auteur": "Palmucci S, Galioto F, Fazio G, Ferlito A, Cancemi G, Di Mari A, Sambataro G, Sambataro D, Zanframundo G, Mauro LA, Foti PV, Vancheri C, Basile A.",
+    "licence": "CC BY",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC9243214) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\nPolyarthrite rhumatoïde (**A, C** axial, **B** coronal, **D** sagittal) : rayon de miel « florissant » occupant **plus de 50 % du poumon**, fait d'espaces macrokystiques (flèches blanches) : signe du « rayon de miel exubérant ».\n\n## À retenir\nLe rayon de miel exubérant, comme le straight-edge et le signe du lobe supérieur antérieur, est plus fréquent dans les PIC de connectivite que dans la FPI (Chung JH et al. AJR 2018;210:307-13 (doi:10.2214/AJR.17.18384))."
+}

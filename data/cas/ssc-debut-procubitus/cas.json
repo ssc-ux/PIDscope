@@ -1,0 +1,33 @@
+{
+  "id": "ssc-debut-procubitus",
+  "titre": "Sclérodermie débutante : l'intérêt du procubitus",
+  "description": "Figure publiée : PINS · Sclérodermie systémique",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Sclérodermie systémique"
+  ],
+  "patterns": [
+    "PINS",
+    "Verre dépoli"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Ruaro B et al. High-Resolution Computed Tomography: Lights and Shadows in Improving Care for SSc-ILD Patients. Diagnostics (Basel, Switzerland), 2021",
+    "url": "https://doi.org/10.3390/diagnostics11111960",
+    "auteur": "Ruaro B, Baratella E, Confalonieri P, Wade B, Marrocchio C, Geri P, Busca A, Pozzan R, Andrisano AG, Cova MA, Confalonieri M, Salton F.",
+    "licence": "CC BY",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC8617987) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\nFemme de 42 ans atteinte de sclérodermie.\n- **a (décubitus)** : verre dépoli discret dans les régions périphériques des bases (flèches).\n- **b (procubitus)** : le verre dépoli **persiste** : il est lié à la maladie (PINS), et non à la gravité.\n\n## À retenir\nUne densité déclive qui disparaît en procubitus est physiologique ; si elle persiste, c'est une atteinte interstitielle débutante."
+}

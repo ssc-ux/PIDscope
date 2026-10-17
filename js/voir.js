@@ -24,11 +24,14 @@ async function afficher(id) {
 
   const s = c.serie;
   const urls = {};
-  for (const [nom, modele] of Object.entries(s.fenetres))
+  if (s.images) urls.poumon = s.images.map((f) => base + f); // figures publiées : liste explicite d'images
+  else for (const [nom, modele] of Object.entries(s.fenetres))
     urls[nom] = Array.from({ length: s.nombre }, (_, i) => base + modele.replace('{n}', String(i + 1).padStart(s.chiffres || 4, '0')));
   const vis = new Visualiseur($('#vis'));
   const depart = +new URLSearchParams(location.search).get('coupe') || s.coupe_initiale;
-  vis.definirPile(new PileUrls(urls, { espacementCoupes: s.espacement_mm ?? null, pixelMm: s.pixel_mm ?? null }), { index: depart ? depart - 1 : undefined });
+  const pileCas = new PileUrls(urls, { espacementCoupes: s.espacement_mm ?? null, pixelMm: s.pixel_mm ?? null });
+  if (s.images) Object.defineProperties(pileCas, { mention: { value: 'Figure publiée, reproduite sans modification' }, unite: { value: 'Figure' } });
+  vis.definirPile(pileCas, { index: depart ? depart - 1 : s.images ? 0 : undefined });
 
   const src = c.source || {};
   $('#lecture').innerHTML = `

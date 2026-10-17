@@ -1,0 +1,33 @@
+{
+  "id": "ssc-pins-coronal-oesophage",
+  "titre": "Sclérodermie : réticulations, respect sous-pleural et œsophage dilaté",
+  "description": "Figure publiée : PINS fibrosante · Sclérodermie systémique",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Sclérodermie systémique"
+  ],
+  "patterns": [
+    "PINS fibrosante",
+    "Respect sous-pleural"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "source": {
+    "nom": "Jeon H et al. Radiologic approach and progressive exploration of connective tissue disease-related interstitial lung disease: meeting the curiosity of rheumatologists. Journal of rheumatic diseases, 2024",
+    "url": "https://doi.org/10.4078/jrd.2023.0042",
+    "auteur": "Jeon H, Nam BD, Yoon CH, Kim HS.",
+    "licence": "CC BY-NC",
+    "modifications": "Figure reproduite sans modification depuis PubMed Central (PMC10730800) ; légende traduite et résumée en français."
+  },
+  "serie": {
+    "nombre": 1,
+    "images": [
+      "images/01.jpg"
+    ]
+  },
+  "etiquette": "TDM · ARTICLE",
+  "texte": "## Ce que montre la figure\nFemme de 44 ans atteinte de sclérodermie.\n- Réticulations, verre dépoli et bronchiolectasies de traction, **périphériques et basaux**, avec distorsion architecturale ; **respect sous-pleural immédiat** bien visible.\n- **A (coronal)** : bronchiolectasies de traction ; dilatation de l'œsophage thoracique supérieur.\n- Peu de rayon de miel.\n\n## À retenir\nAssociation typique de la sclérodermie : PINS fibrosante + respect sous-pleural + œsophage dilaté."
+}

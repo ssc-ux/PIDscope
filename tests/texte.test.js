@@ -14,3 +14,13 @@ test('titre suivi directement d’un paragraphe puis d’une liste', () => {
 test('le HTML est toujours échappé', () => {
   assert.equal(rendreTexte('<img src=x onerror=alert(1)>'), '<p>&lt;img src=x onerror=alert(1)&gt;</p>');
 });
+
+test('zip : CRC32 de référence', async () => {
+  const { crc32 } = await import('../js/zip.js');
+  assert.equal(crc32(new TextEncoder().encode('123456789')), 0xcbf43926);
+});
+
+test('export de cas : identifiant sans accents ni espaces', async () => {
+  const { slug } = await import('../js/export-cas.js');
+  assert.equal(slug('Sclérodermie : PINS fibrosante (2024)'), 'sclerodermie-pins-fibrosante-2024');
+});
