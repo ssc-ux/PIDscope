@@ -27,7 +27,8 @@
       "poumon": "poumon/{n}.webp",
       "mediastin": "mediastin/{n}.webp"
     },
-    "coupe_initiale": 105
+    "coupe_initiale": 105,
+    "pixel_mm": 0.703
   },
   "texte": "## Pourquoi ce cas\nPneumonie COVID-19 confirmée (base RICORD). Il sert à apprendre à décrire la **topographie** des lésions, étape clé pour reconnaître un pattern de PID.\n\n## Sémiologie\n- **Verre dépoli périphérique** sous-pleural, bilatéral, respectant en partie les régions centrales péri-hilaires [coupe 85].\n- **Condensations** postérieures et basales, bilatérales [coupe 105], plus étendues vers les bases [coupe 120].\n- Gradient apico-basal : lésions plus marquées aux bases qu'aux sommets [coupe 20].\n- Pneumomédiastin antérieur [coupe 105].\n\n## Message pour la médecine interne\nLa distribution **périphérique et basale** des condensations et du verre dépoli évoque un pattern de **pneumonie organisée (PO)**, fréquent au cours du syndrome des antisynthétases et des myopathies inflammatoires, souvent associé à une PINS (PINS + PO). Le contexte (ici infectieux) reste déterminant.\n\n## Exercice\nRepérez le gradient cranio-caudal en faisant défiler toute la série, puis cotez l'étendue (onglet **Étendue**)."
 }

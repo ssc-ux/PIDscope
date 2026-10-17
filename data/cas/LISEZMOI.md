@@ -35,6 +35,7 @@ Le cas doit aussi être ajouté à `data/cas/index.json` (id, titre, description
 ```
 
 - `statut` : `brouillon` tant que le cas n'a pas été relu, puis `relu` avec `relecture.par` et `relecture.date` (AAAA-MM-JJ).
+- `pixel_mm` (dans `serie`) : taille du pixel des images exportées, nécessaire à la quantification.
 - `niveaux_goh` (facultatif) : les 5 coupes proposées pour le score de Goh (numérotées à partir de 1).
 - `texte` : `## titre`, `- liste`, `**gras**`, `[coupe N]` (bouton qui affiche la coupe N). Le HTML est échappé.
 - Uniquement des images publiées sous licence ouverte, source et auteur cités. **Jamais d'images de patients du service.**

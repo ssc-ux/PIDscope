@@ -167,8 +167,9 @@ button.lien-coupe:hover { background: #0f2a1e; }
 .histo { width: 100%; height: 130px; display: block; margin-top: .6rem; }
 .legende-calque { display: flex; gap: 1rem; font-size: .8rem; color: var(--texte-2); margin-top: .5rem; }
 .legende-calque span::before { content: ""; display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; margin-right: .35rem; vertical-align: -1px; }
-.legende-calque .p::before { background: rgba(94, 214, 160, .55); }
-.legende-calque .h::before { background: var(--haa); }
+.legende-calque .vd::before { background: rgb(245, 197, 66); }
+.legende-calque .fib::before { background: rgb(255, 90, 90); }
+.legende-calque .cond::before { background: rgb(139, 123, 255); }
 progress { width: 100%; accent-color: var(--accent); }
 
 @media (max-width: 600px) {

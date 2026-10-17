@@ -28,7 +28,7 @@ async function afficher(id) {
     urls[nom] = Array.from({ length: s.nombre }, (_, i) => base + modele.replace('{n}', String(i + 1).padStart(s.chiffres || 4, '0')));
   const vis = new Visualiseur($('#vis'));
   const depart = +new URLSearchParams(location.search).get('coupe') || s.coupe_initiale;
-  vis.definirPile(new PileUrls(urls, { espacementCoupes: s.espacement_mm ?? null }), { index: depart ? depart - 1 : undefined });
+  vis.definirPile(new PileUrls(urls, { espacementCoupes: s.espacement_mm ?? null, pixelMm: s.pixel_mm ?? null }), { index: depart ? depart - 1 : undefined });
 
   const src = c.source || {};
   $('#lecture').innerHTML = `

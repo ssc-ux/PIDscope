@@ -1,7 +1,23 @@
-// Panneau « Étendue » : scores visuels (Goh, Warrick, Kazerooni) et densitométrie automatique (DICOM).
+// Panneau « Étendue » : scores visuels (Goh, Warrick, Kazerooni) et quantification semi-automatique des lésions.
 
 import { goh, NIVEAUX_GOH, warrick, LESIONS_WARRICK, CLASSES_SEGMENTS, kazerooni, LOBES, GRADES_VERRE_DEPOLI, GRADES_FIBROSE, REFERENCES } from './scores.js';
-import { analyserDensite, HAA_MIN, HAA_MAX } from './densitometrie.js';
+import { HAA_MIN, HAA_MAX } from './densitometrie.js';
+import { quantifierVolume, proportions, CLASSES } from './quantification.js';
+import { pileUHDepuisFenetrePoumon } from './piles.js';
+
+const PALETTE = {
+  [CLASSES.NORMAL]: [94, 214, 160, 0.12],
+  [CLASSES.VERRE_DEPOLI]: [245, 197, 66, 0.55],
+  [CLASSES.FIBROSE]: [255, 90, 90, 0.6],
+  [CLASSES.CONDENSATION]: [139, 123, 255, 0.6],
+};
+const PINCEAUX = [
+  [CLASSES.VERRE_DEPOLI, 'Verre dépoli'],
+  [CLASSES.FIBROSE, 'Fibrose'],
+  [CLASSES.CONDENSATION, 'Condensation'],
+  [CLASSES.NORMAL, 'Poumon normal'],
+  [CLASSES.HORS, 'Hors poumon'],
+];
 
 const options = (libelles) => libelles.map((l, i) => `<option value="${i}">${l}</option>`).join('');
 const fmt = (v, d = 1) => v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -13,7 +29,7 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
       <button type="button" data-onglet="goh" aria-pressed="true">Goh</button>
       <button type="button" data-onglet="warrick">Warrick</button>
       <button type="button" data-onglet="kazerooni">Kazerooni</button>
-      <button type="button" data-onglet="densite">Densitométrie</button>
+      <button type="button" data-onglet="quantif">Quantification</button>
     </div>
     <section data-panneau="goh" class="score">
       <p class="note" style="margin-top:0">Estimez l’étendue de la PID (verre dépoli + réticulations), à 5 % près, sur 5 niveaux. Placez-vous sur chaque niveau puis cliquez 📍.</p>
@@ -39,15 +55,29 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
       <div class="resultat" data-resultat-kaz></div>
       <p class="note">Chaque lobe est coté de 0 à 5 pour le verre dépoli et pour la fibrose ; résultat = moyenne des 5 lobes (0–5).<br>${REFERENCES.kazerooni}</p>
     </section>
-    <section data-panneau="densite" class="score" hidden>
-      <div data-densite-indispo><p class="note" style="margin-top:0">Disponible uniquement pour un scanner DICOM ouvert dans « Mon scanner » (valeurs en UH). Les images exportées (JPEG, cas publiés) ne contiennent pas de densités.</p></div>
-      <div data-densite-dispo hidden>
-        <p class="note" style="margin-top:0">Segmentation automatique des poumons, puis mesure du pourcentage de zones de haute atténuation (HAA : ${HAA_MIN} à ${HAA_MAX} UH, verre dépoli et réticulations).</p>
-        <button type="button" class="bouton-principal" data-lancer>Lancer l’analyse</button>
+    <section data-panneau="quantif" class="score" hidden>
+      <div data-q-indispo><p class="note" style="margin-top:0">Disponible pour un scanner DICOM (« Mon scanner ») ou un cas de l’atlas. Les images JPEG/PNG ne contiennent pas de densités.</p></div>
+      <div data-q-dispo hidden>
+        <p class="note" style="margin-top:0">Le site propose une carte des lésions sur tout le scanner, puis vous la vérifiez et la corrigez au pinceau sur les 5 niveaux de Goh.</p>
+        <p class="note" data-q-approx hidden>⚠ Cas de l’atlas : densités reconstituées depuis les images exportées (précision ± 6 UH, compression) : résultats approximatifs.</p>
+        <button type="button" class="bouton-principal" data-lancer>Analyser le scanner</button>
         <progress hidden max="1" value="0"></progress>
-        <div data-resultat-densite></div>
+        <div data-q-resultats hidden>
+          <div class="legende-calque"><span class="vd">Verre dépoli</span><span class="fib">Fibrose</span><span class="cond">Condensation</span></div>
+          <div class="resultat neutre" data-q-volume></div>
+          <h3>Vérification sur les 5 niveaux</h3>
+          <p class="note" style="margin-top:0">Cliquez sur un niveau, corrigez la carte avec le pinceau (glisser sur l’image ; molette pour changer de coupe), puis validez. Les niveaux se définissent dans l’onglet Goh (📍).</p>
+          <table data-q-niveaux></table>
+          <div data-q-outils hidden style="margin-top:.8rem">
+            <p style="margin:0 0 .4rem"><strong>Pinceau</strong> · rayon <select data-q-rayon><option value="2">2 mm</option><option value="5" selected>5 mm</option><option value="10">10 mm</option></select></p>
+            <div class="onglets" data-q-pinceaux>${PINCEAUX.map(([v, n]) => `<button type="button" data-valeur="${v}">${n}</button>`).join('')}</div>
+            <button type="button" data-q-valider>✓ Valider ce niveau</button>
+          </div>
+          <div class="resultat" data-q-synthese></div>
+          <button type="button" data-q-reporter hidden>Reporter dans le score de Goh</button>
+        </div>
       </div>
-      <p class="note">Limites : segmentation par seuillage à -300 UH : les condensations denses peuvent être exclues ; la trachée, les grosses bronches et un éventuel pneumomédiastin sont inclus. Un poumon normal contient aussi des HAA (parois vasculaires et bronchiques : 6 % sur le scanner normal de l’atlas) ; volume médian de HAA dans la cohorte MESA : 119 cm³. Vérifiez toujours le masque coupe par coupe. Valeurs dépendantes de l’inspiration, du filtre et de la dose ; à comparer seulement entre examens comparables.<br>${REFERENCES.haa}</p>
+      <p class="note">Méthode PIDscope (non validée cliniquement) : poumon segmenté à -300 UH ; dans une fenêtre locale, condensation = ≥ 60 % de pixels denses (&gt; -300 UH) ; fibrose = réseau de structures fines (réticulations, parois de rayon de miel) ; verre dépoli = parenchyme non dense de densité moyenne ≥ -700 UH. Calibrée sur 3 scanners réels (faux positifs ≈ 1–2 % par classe sur le scanner normal) et sur des lésions synthétiques. Limites : dépend de la dose, du filtre et de l’inspiration ; les condensations sous-pleurales très denses et le rayon de miel au contact de la paroi peuvent sortir du masque ; la fibrose fine est sous-estimée et l’atténuation déclive peut mimer du verre dépoli. La carte doit toujours être vérifiée.<br>HAA (${HAA_MIN} à ${HAA_MAX} UH) : ${REFERENCES.haa}</p>
     </section>`;
 
   const $ = (s) => conteneur.querySelector(s);
@@ -104,42 +134,108 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
   $$('[data-kaz-vd], [data-kaz-fib]').forEach((s) => s.addEventListener('input', majKaz));
   majKaz();
 
-  // Densitométrie
+  // Quantification semi-automatique
+  let analyse = null; // { vis, pile, classes, valides: Set, niveauActif }
+  const sourceUH = (vis) => (vis?.pile?.calibre ? vis.pile : vis?.pile?.urlsParFenetre ? pileUHDepuisFenetrePoumon(vis.pile) : null);
   const majDisponibilite = () => {
-    const ok = !!visualiseur()?.pile?.calibre;
-    $('[data-densite-dispo]').hidden = !ok;
-    $('[data-densite-indispo]').hidden = ok;
+    const vis = visualiseur();
+    const ok = !!sourceUH(vis) && (vis.pile.calibre || vis.pile.pixelMm);
+    $('[data-q-dispo]').hidden = !ok;
+    $('[data-q-indispo]').hidden = ok;
+    $('[data-q-approx]').hidden = !ok || !!vis.pile.calibre;
+    if (analyse && analyse.pile !== vis?.pile) { analyse = null; $('[data-q-resultats]').hidden = true; }
+  };
+  const pct = (v) => `${fmt(v)} %`;
+  const majNiveaux = () => {
+    if (!analyse) return;
+    const lignes = NIVEAUX_GOH.map((nom, i) => {
+      const k = niveaux[i];
+      if (k == null) return `<tr><td>${i + 1}. ${nom}</td><td class="note">non défini</td></tr>`;
+      const p = proportions([analyse.classes[k]]);
+      const ok = analyse.valides.has(i);
+      return `<tr data-q-niveau="${i}"${analyse.niveauActif === i ? ' style="outline:1px solid var(--accent)"' : ''}><td><button type="button" class="lien-coupe" data-q-aller="${i}">${i + 1}. coupe ${k + 1}</button></td>
+        <td>VD ${pct(p.verreDepoli)} · Fib ${pct(p.fibrose)} ${ok ? '✓' : '<span class="badge">auto</span>'}</td></tr>`;
+    });
+    $('[data-q-niveaux]').innerHTML = lignes.join('');
+    const definis = niveaux.map((k, i) => [k, i]).filter(([k]) => k != null);
+    if (definis.length === 5) {
+      const parNiveau = definis.map(([k]) => proportions([analyse.classes[k]]));
+      const moy = (cle) => parNiveau.reduce((t, p) => t + p[cle], 0) / 5;
+      const total = moy('verreDepoli') + moy('fibrose');
+      $('[data-q-synthese]').innerHTML = `Étendue PID sur les 5 niveaux (${analyse.valides.size}/5 validés) : <strong>${pct(total)}</strong><br>
+        Verre dépoli ${pct(moy('verreDepoli'))} · fibrose ${pct(moy('fibrose'))} · condensation ${pct(moy('condensation'))} (non comptée)`;
+      $('[data-q-reporter]').hidden = false;
+    } else {
+      $('[data-q-synthese]').innerHTML = 'Définissez les 5 niveaux dans l’onglet Goh pour obtenir l’étendue.';
+      $('[data-q-reporter]').hidden = true;
+    }
+  };
+  const choisirPinceau = (valeur) => {
+    $$('[data-q-pinceaux] button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.valeur === valeur)));
+    analyse?.vis.definirPinceau(valeur == null ? null : { valeur, rayonMm: +$('[data-q-rayon]').value });
   };
   $('[data-lancer]').addEventListener('click', async () => {
     const vis = visualiseur();
     const pile = vis.pile;
+    const source = sourceUH(vis);
     const barre = $('progress');
     const bouton = $('[data-lancer]');
     barre.hidden = false;
     bouton.disabled = true;
-    $('[data-resultat-densite]').textContent = '';
     try {
-      const r = await analyserDensite(pile, {
-        espacementPixel: pile.espacementPixel,
+      const r = await quantifierVolume(source, {
+        espacementPixel: pile.calibre ? pile.espacementPixel : [pile.pixelMm, pile.pixelMm],
         espacementCoupes: pile.espacementCoupes,
-        epaisseur: pile.serie?.epaisseur,
-      }, (n, total) => { barre.value = n / total; });
+        epaisseur: pile.serie?.epaisseur ?? pile.espacementCoupes,
+      }, (f) => { barre.value = f; });
       if (vis.pile !== pile) return; // une autre série a été ouverte entre-temps
-      vis.definirCalque({ largeur: r.largeurMasque, hauteur: r.hauteurMasque, masques: r.masques });
-      $('[data-resultat-densite]').innerHTML = `
-        <div class="resultat">HAA : <strong>${fmt(r.haaPourcent)} %</strong> du poumon${r.haaMl != null ? ` (${fmt(r.haaMl, 0)} mL)` : ''}<br>
-        Volume pulmonaire : ${r.volumeMl != null ? `${fmt(r.volumeMl / 1000, 2)} L` : 'non calculé (coupes non contiguës)'}<br>
-        Densité moyenne : ${fmt(r.densiteMoyenne, 0)} UH</div>
-        <canvas class="histo" width="720" height="260" aria-label="Histogramme des densités pulmonaires"></canvas>
-        <div class="legende-calque"><span class="p">Poumon segmenté</span><span class="h">HAA</span></div>`;
-      dessinerHistogramme($('.histo'), r.histogramme);
+      analyse = { vis, pile, classes: r.classes, valides: new Set(), niveauActif: null };
+      vis.definirCalque({ largeur: r.largeurMasque, hauteur: r.hauteurMasque, masques: r.classes, palette: PALETTE });
+      vis.surPeinture = (k) => { const i = niveaux.indexOf(k); if (i >= 0) analyse.valides.delete(i); majNiveaux(); };
+      const v = r.volume, d = r.densite;
+      $('[data-q-volume]').innerHTML = `<strong>Tout le scanner</strong> (estimation automatique, non vérifiée)<br>
+        Verre dépoli ${pct(v.verreDepoli)} · fibrose ${pct(v.fibrose)} · condensation ${pct(v.condensation)}<br>
+        HAA ${pct(d.haaPourcent)} · densité moyenne ${fmt(d.densiteMoyenne, 0)} UH${d.volumeMl != null ? ` · volume pulmonaire ${fmt(d.volumeMl / 1000, 2)} L` : ''}`;
+      $('[data-q-resultats]').hidden = false;
+      majNiveaux();
     } catch (e) {
-      $('[data-resultat-densite]').innerHTML = `<p class="etat erreur">Analyse impossible : ${e.message}</p>`;
+      $('[data-q-volume]').textContent = `Analyse impossible : ${e.message}`;
+      $('[data-q-resultats]').hidden = false;
     } finally {
       barre.hidden = true;
       bouton.disabled = false;
     }
   });
+  conteneur.addEventListener('click', (e) => {
+    if (!analyse) return;
+    const aller = e.target.closest('[data-q-aller]')?.dataset.qAller;
+    if (aller != null) {
+      analyse.niveauActif = +aller;
+      analyse.vis.allerA(niveaux[+aller]);
+      analyse.vis.afficherCalque(true);
+      $('[data-q-outils]').hidden = false;
+      majNiveaux();
+    }
+    const v = e.target.closest('[data-q-pinceaux] button')?.dataset.valeur;
+    if (v != null) choisirPinceau(analyse.vis.pinceau?.valeur === +v ? null : +v);
+  });
+  $('[data-q-rayon]').addEventListener('change', () => analyse?.vis.pinceau && choisirPinceau(analyse.vis.pinceau.valeur));
+  $('[data-q-valider]').addEventListener('click', () => {
+    if (analyse?.niveauActif == null) return;
+    analyse.valides.add(analyse.niveauActif);
+    choisirPinceau(null);
+    majNiveaux();
+  });
+  $('[data-q-reporter]').addEventListener('click', () => {
+    niveaux.forEach((k, i) => {
+      const p = proportions([analyse.classes[k]]);
+      $(`[data-goh="${i}"]`).value = String(Math.min(100, Math.round((p.verreDepoli + p.fibrose) / 5) * 5));
+    });
+    majGoh();
+    $('[data-onglet="goh"]').click();
+  });
+  // Les niveaux (📍) changent dans l'onglet Goh : mettre à jour la vérification.
+  conteneur.addEventListener('click', (e) => { if (e.target.dataset?.marquer != null) majNiveaux(); });
 
   return { majDisponibilite };
 }

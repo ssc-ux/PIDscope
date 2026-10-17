@@ -74,7 +74,7 @@ export class PileFichiersImage extends PileImages {
 
 // Série publiée sur le site (cas) : une liste d'URL par fenêtre pré-calculée (« poumon », « mediastin »).
 export class PileUrls extends PileImages {
-  constructor(urlsParFenetre, { espacementCoupes = null, espacementPixel = null } = {}) {
+  constructor(urlsParFenetre, { espacementCoupes = null, espacementPixel = null, pixelMm = null } = {}) {
     const variantes = Object.keys(urlsParFenetre);
     super(urlsParFenetre[variantes[0]]);
     this.urlsParFenetre = urlsParFenetre;
@@ -82,6 +82,7 @@ export class PileUrls extends PileImages {
     this.variante = variantes[0];
     this.espacementCoupes = espacementCoupes;
     this.espacementPixel = espacementPixel;
+    this.pixelMm = pixelMm; // taille du pixel des images exportées (mm)
   }
   get mention() { return `Fenêtre ${this.variante === 'mediastin' ? 'médiastinale' : 'pulmonaire'}`; }
   legende(i) { return this.espacementCoupes ? `${((i * this.espacementCoupes) / 10).toFixed(1)} cm sous la 1re coupe` : ''; }
@@ -101,6 +102,30 @@ export class PileUrls extends PileImages {
     if (!r.ok) throw new Error(`Image introuvable : ${url}`);
     return createImageBitmap(await r.blob());
   }
+}
+
+// Valeurs en UH reconstituées à partir des images exportées en fenêtre pulmonaire (L -600 / W 1500) :
+// approximation au pas de 6 UH, bornée à [-1350 ; +150] UH, altérée par la compression des images.
+export function pileUHDepuisFenetrePoumon(pile) {
+  const urls = pile.urlsParFenetre?.poumon;
+  if (!urls) return null;
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  return {
+    nombre: urls.length,
+    espacementPixel: [pile.pixelMm, pile.pixelMm],
+    espacementCoupes: pile.espacementCoupes,
+    async coupe(i) {
+      const image = await pile.charger(urls[i]);
+      canvas.width = image.width;
+      canvas.height = image.height;
+      ctx.drawImage(image, 0, 0);
+      const px = ctx.getImageData(0, 0, image.width, image.height).data;
+      const donnees = new Int16Array(image.width * image.height);
+      for (let j = 0; j < donnees.length; j++) donnees[j] = Math.round((px[j * 4] / 255) * 1500 - 1350);
+      return { type: 'uh', largeur: image.width, hauteur: image.height, donnees };
+    },
+  };
 }
 
 const estImage = (f) => /^image\/(jpeg|png|webp|bmp)$/.test(f.type) || /\.(jpe?g|png|webp|bmp)$/i.test(f.name);

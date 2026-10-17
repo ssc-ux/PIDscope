@@ -23,7 +23,8 @@
       "poumon": "poumon/{n}.webp",
       "mediastin": "mediastin/{n}.webp"
     },
-    "coupe_initiale": 51
+    "coupe_initiale": 51,
+    "pixel_mm": 0.521
   },
   "niveaux_goh": [
     28,

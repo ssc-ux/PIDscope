@@ -7,8 +7,8 @@ export const FENETRES = {
 };
 
 const limiter = (v, min, max) => Math.min(max, Math.max(min, v));
-const COULEUR_POUMON = [94, 214, 160];
-const COULEUR_HAA = [255, 138, 61];
+// Palette par défaut d'un calque : valeur → [r, g, b, opacité].
+const PALETTE_DEFAUT = { 1: [94, 214, 160, 0.18], 2: [255, 138, 61, 0.55] };
 
 export class Visualiseur {
   constructor(conteneur, { surChangement = () => {} } = {}) {
@@ -17,8 +17,10 @@ export class Visualiseur {
     this.index = 0;
     this.fenetre = { ...FENETRES.poumon };
     this.vue = { zoom: 1, dx: 0, dy: 0 };
-    this.calque = null; // { largeur, hauteur, masques: Uint8Array[] }
+    this.calque = null; // { largeur, hauteur, masques: Uint8Array[] (demi-résolution), palette }
     this.calqueVisible = false;
+    this.pinceau = null; // { valeur, rayonMm } : le glisser peint le calque au lieu de faire défiler
+    this.surPeinture = () => {};
 
     conteneur.classList.add('visualiseur');
     conteneur.innerHTML = `
@@ -190,13 +192,13 @@ export class Visualiseur {
     if (masque) {
       // Le masque est à demi-résolution : un pixel du masque couvre 2×2 pixels de l'image.
       const { largeur: mw } = this.calque;
+      const palette = this.calque.palette || PALETTE_DEFAUT;
       const px = img.data;
       for (let y = 0; y < c.hauteur; y++)
         for (let x = 0; x < c.largeur; x++) {
           const m = masque[(y >> 1) * mw + (x >> 1)];
-          if (!m) continue;
-          const [r, g, b] = m === 2 ? COULEUR_HAA : COULEUR_POUMON;
-          const a = m === 2 ? 0.55 : 0.18;
+          if (!m || !palette[m]) continue;
+          const [r, g, b, a] = palette[m];
           const j = (y * c.largeur + x) * 4;
           px[j] = px[j] * (1 - a) + r * a;
           px[j + 1] = px[j + 1] * (1 - a) + g * a;
@@ -233,7 +235,8 @@ export class Visualiseur {
       const h = hauteurMm * echelle;
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(this.imageAffichable(), (W - w) / 2 + this.vue.dx * dpr, (H - h) / 2 + this.vue.dy * dpr, w, h);
+      this.rectImage = { x: (W - w) / 2 + this.vue.dx * dpr, y: (H - h) / 2 + this.vue.dy * dpr, w, h, dpr };
+      ctx.drawImage(this.imageAffichable(), this.rectImage.x, this.rectImage.y, w, h);
     }
 
     const p = this.pile;
@@ -284,10 +287,12 @@ export class Visualiseur {
           if (e.timeStamp - (this.dernierTap || 0) < 300) this.reinitialiser();
           this.dernierTap = e.timeStamp;
         }
-        const type = e.button === 2 && this.pile.calibre ? 'fenetre'
+        const type = this.pinceau && e.button === 0 && !e.shiftKey ? 'peindre'
+          : e.button === 2 && this.pile.calibre ? 'fenetre'
           : e.button === 1 || e.shiftKey ? 'deplacer'
           : 'defiler';
         geste = { type, x: e.clientX, y: e.clientY, index: this.index, fenetre: { ...this.fenetre }, dx: this.vue.dx, dy: this.vue.dy };
+        if (type === 'peindre') this.peindre(e.clientX, e.clientY);
       }
     });
     z.addEventListener('pointermove', (e) => {
@@ -303,7 +308,9 @@ export class Visualiseur {
       }
       const dx = e.clientX - geste.x;
       const dy = e.clientY - geste.y;
-      if (geste.type === 'defiler') {
+      if (geste.type === 'peindre') {
+        this.peindre(e.clientX, e.clientY);
+      } else if (geste.type === 'defiler') {
         // Une hauteur d'image parcourt environ toute la série (2 à 12 px par coupe).
         const pxParCoupe = limiter(z.clientHeight / this.pile.nombre, 2, 12);
         this.allerA(geste.index + dy / pxParCoupe);
@@ -333,6 +340,31 @@ export class Visualiseur {
       else return;
       e.preventDefault();
     });
+  }
+
+  definirPinceau(pinceau) {
+    this.pinceau = pinceau;
+    this.zone.style.cursor = pinceau ? 'crosshair' : '';
+  }
+
+  // Peint un disque du calque (coupe courante) sous le pointeur.
+  peindre(clientX, clientY) {
+    const masque = this.calque?.masques[this.index];
+    if (!masque || !this.image || !this.rectImage) return;
+    const z = this.zone.getBoundingClientRect();
+    const { x, y, w, h, dpr } = this.rectImage;
+    const ix = (((clientX - z.left) * dpr - x) / w) * this.image.largeur;
+    const iy = (((clientY - z.top) * dpr - y) / h) * this.image.hauteur;
+    const { largeur: mw, hauteur: mh } = this.calque;
+    const pixelMm = this.pile.pixelMm || this.pile.espacementPixel?.[1] || 1;
+    const r = Math.max(0.5, this.pinceau.rayonMm / (2 * pixelMm));
+    const cx = ix / 2, cy = iy / 2;
+    for (let my = Math.floor(cy - r); my <= Math.ceil(cy + r); my++)
+      for (let mx = Math.floor(cx - r); mx <= Math.ceil(cx + r); mx++)
+        if (mx >= 0 && my >= 0 && mx < mw && my < mh && (mx - cx) ** 2 + (my - cy) ** 2 <= r * r) masque[my * mw + mx] = this.pinceau.valeur;
+    this.cacheImage = null;
+    this.dessiner();
+    this.surPeinture(this.index);
   }
 
   mesurePincement(pointeurs) {
