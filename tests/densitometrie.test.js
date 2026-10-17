@@ -29,6 +29,12 @@ test('densitométrie : poumons segmentés, air digestif exclu, HAA exact', async
   const attendu = (-850 * (voxelsPoumon - 640 - 40) + -400 * 640 + 40 * 40) / voxelsPoumon;
   assert.ok(Math.abs(r.densiteMoyenne - attendu) < 1e-9);
   assert.equal(r.masques.length, N);
+  // Indices de Best 2003 sur les voxels ≤ -200 UH (le vaisseau à 40 UH est exclu) : loi à deux valeurs.
+  const a = voxelsPoumon - 640 - 40, b = 640, p = b / (a + b);
+  const proche = (x, y) => assert.ok(Math.abs(x - y) < 1e-6, `${x} ≠ ${y}`);
+  proche(r.indices.mla, (-850 * a - 400 * b) / (a + b));
+  proche(r.indices.asymetrie, (1 - 2 * p) / Math.sqrt(p * (1 - p)));
+  proche(r.indices.kurtosis, (1 - 6 * p * (1 - p)) / (p * (1 - p)));
 });
 
 test('densitométrie : coupes non contiguës → pas de volume', async () => {

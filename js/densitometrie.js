@@ -1,12 +1,14 @@
 // Densitométrie pulmonaire automatique sur une série DICOM calibrée en UH.
-// 1. Segmentation des poumons (à demi-résolution) : parenchyme aéré (< -300 UH, inclut le verre dépoli) non relié au bord de l'image,
+// 1. Segmentation des poumons (à demi-résolution) : parenchyme < -200 UH (seuil de Best 2003) non relié au bord de l'image,
 //    plus grandes composantes 3D (exclut l'air digestif), comblement des trous (vaisseaux) et fermeture morphologique.
-// 2. Mesures à pleine résolution dans ce masque : volume, densité moyenne, % de zones de haute atténuation
-//    (HAA, -600 à -250 UH, définition MESA), histogramme.
+// 2. Mesures à pleine résolution dans ce masque : volume, % de zones de haute atténuation (HAA, -600 à -250 UH,
+//    définition MESA), et indices d'histogramme de Best 2003 (densité moyenne, asymétrie, kurtosis des voxels ≤ -200 UH).
 
-export const SEUIL_AIR = -300;
+export const SEUIL_AIR = -200;
 export const HAA_MIN = -600;
 export const HAA_MAX = -250;
+export const HISTO_BEST_MAX = -200; // borne haute de l'histogramme pulmonaire (Best 2003)
+const HISTO_BEST_MIN = -1024;
 const HISTO_MIN = -1000;
 const HISTO_MAX = 0;
 const HISTO_PAS = 10;
@@ -145,6 +147,8 @@ export async function analyserDensite(pile, geometrie, progression = () => {}) {
   const histogramme = new Array((HISTO_MAX - HISTO_MIN) / HISTO_PAS).fill(0);
   const masques = [];
   let total = 0, haa = 0, sommeUH = 0;
+  // Moments de l'histogramme (valeurs centrées sur -700 UH pour limiter les erreurs d'arrondi).
+  let mn = 0, m1 = 0, m2 = 0, m3 = 0, m4 = 0;
   for (let k = 0; k < n; k++) {
     let m = new Uint8Array(plan);
     for (let i = 0; i < plan; i++) m[i] = garder[etiquettes[k * plan + i]] ? 1 : 0;
@@ -161,6 +165,10 @@ export async function analyserDensite(pile, geometrie, progression = () => {}) {
         sommeUH += v;
         if (v >= HAA_MIN && v <= HAA_MAX) { haa++; calque[j] = 2; } else if (!calque[j]) calque[j] = 1;
         if (v >= HISTO_MIN && v < HISTO_MAX) histogramme[Math.floor((v - HISTO_MIN) / HISTO_PAS)]++;
+        if (v >= HISTO_BEST_MIN && v <= HISTO_BEST_MAX) {
+          const t = v + 700;
+          mn++; m1 += t; m2 += t * t; m3 += t * t * t; m4 += t * t * t * t;
+        }
       }
     masques.push(calque);
     progression(n + k + 1, n * 2, 'Mesures');
@@ -177,5 +185,20 @@ export async function analyserDensite(pile, geometrie, progression = () => {}) {
     haaPourcent: total ? (100 * haa) / total : null,
     haaMl: contigu ? haa * volumeVoxel : null,
     histogramme: { min: HISTO_MIN, pas: HISTO_PAS, valeurs: histogramme },
+    indices: indicesHistogramme(mn, m1, m2, m3, m4),
+  };
+}
+
+// Densité moyenne (MLA), asymétrie et kurtosis en excès (loi normale = 0) à partir des moments bruts centrés sur -700 UH.
+function indicesHistogramme(n, s1, s2, s3, s4) {
+  if (n < 2) return null;
+  const m = s1 / n;
+  const v = s2 / n - m * m;
+  const m3 = s3 / n - 3 * m * (s2 / n) + 2 * m ** 3;
+  const m4 = s4 / n - 4 * m * (s3 / n) + 6 * m * m * (s2 / n) - 3 * m ** 4;
+  return {
+    mla: m - 700,
+    asymetrie: v > 0 ? m3 / v ** 1.5 : 0,
+    kurtosis: v > 0 ? m4 / (v * v) - 3 : 0,
   };
 }

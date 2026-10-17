@@ -58,7 +58,7 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
     <section data-panneau="quantif" class="score" hidden>
       <div data-q-indispo><p class="note" style="margin-top:0">Disponible pour un scanner DICOM (« Mon scanner ») ou un cas de l’atlas. Les images JPEG/PNG ne contiennent pas de densités.</p></div>
       <div data-q-dispo hidden>
-        <p class="note" style="margin-top:0">Le site propose une carte des lésions sur tout le scanner, puis vous la vérifiez et la corrigez au pinceau sur les 5 niveaux de Goh.</p>
+        <p class="note" style="margin-top:0">Mesures de densité publiées sur tout le poumon, et carte exploratoire des lésions à vérifier et corriger au pinceau sur les 5 niveaux de Goh.</p>
         <p class="note" data-q-approx hidden>⚠ Cas de l’atlas : densités reconstituées depuis les images exportées (précision ± 6 UH, compression) : résultats approximatifs.</p>
         <button type="button" class="bouton-principal" data-lancer>Analyser le scanner</button>
         <progress hidden max="1" value="0"></progress>
@@ -77,7 +77,10 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
           <button type="button" data-q-reporter hidden>Reporter dans le score de Goh</button>
         </div>
       </div>
-      <p class="note">Méthode PIDscope (non validée cliniquement) : poumon segmenté à -300 UH ; dans une fenêtre locale, condensation = ≥ 60 % de pixels denses (&gt; -300 UH) ; fibrose = réseau de structures fines (réticulations, parois de rayon de miel) ; verre dépoli = parenchyme non dense de densité moyenne ≥ -700 UH. Calibrée sur 3 scanners réels (faux positifs ≈ 1–2 % par classe sur le scanner normal) et sur des lésions synthétiques. Limites : dépend de la dose, du filtre et de l’inspiration ; les condensations sous-pleurales très denses et le rayon de miel au contact de la paroi peuvent sortir du masque ; la fibrose fine est sous-estimée et l’atténuation déclive peut mimer du verre dépoli. La carte doit toujours être vérifiée.<br>HAA (${HAA_MIN} à ${HAA_MAX} UH) : ${REFERENCES.haa}</p>
+      <p class="note"><strong>Mesures publiées</strong> : poumon isolé sous -200 UH (Best 2003), HAA = % de voxels entre ${HAA_MIN} et ${HAA_MAX} UH (MESA), densité moyenne (MLA), asymétrie et kurtosis (en excès, loi normale = 0) des voxels pulmonaires de -1024 à -200 UH. Indices corrélés aux EFR dans la FPI et dans la sclérodermie ; aucune valeur seuil diagnostique : à comparer entre examens comparables d’un même patient.<br>
+      <strong>Carte des lésions</strong> : méthode PIDscope <strong>exploratoire, non validée</strong> (condensation = ≥ 60 % de pixels &gt; -300 UH dans une fenêtre de 6 mm ; fibrose = réseau de structures fines ; verre dépoli = parenchyme non dense ≥ -700 UH). Calibrée sur 3 scanners réels et des lésions synthétiques ; elle ne remplace ni la lecture visuelle ni les outils validés (CALIPER, QILD, DTA, non disponibles en libre accès).<br>
+      <strong>Limites</strong> : outil pédagogique, pas un dispositif médical. Résultats dépendants du filtre de reconstruction, de l’épaisseur de coupe, de l’inspiration, de l’injection et du constructeur ; atélectasies déclives et bruit des basses doses ; les densités ne distinguent pas un verre dépoli inflammatoire d’une fibrose fine ; valeurs non interchangeables avec les logiciels commerciaux.<br>
+      ${REFERENCES.best}<br>${REFERENCES.camiciottoli}<br>${REFERENCES.haa}<br>${REFERENCES.haa2016}</p>
     </section>`;
 
   const $ = (s) => conteneur.querySelector(s);
@@ -193,9 +196,11 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
       vis.definirCalque({ largeur: r.largeurMasque, hauteur: r.hauteurMasque, masques: r.classes, palette: PALETTE });
       vis.surPeinture = (k) => { const i = niveaux.indexOf(k); if (i >= 0) analyse.valides.delete(i); majNiveaux(); };
       const v = r.volume, d = r.densite;
-      $('[data-q-volume]').innerHTML = `<strong>Tout le scanner</strong> (estimation automatique, non vérifiée)<br>
-        Verre dépoli ${pct(v.verreDepoli)} · fibrose ${pct(v.fibrose)} · condensation ${pct(v.condensation)}<br>
-        HAA ${pct(d.haaPourcent)} · densité moyenne ${fmt(d.densiteMoyenne, 0)} UH${d.volumeMl != null ? ` · volume pulmonaire ${fmt(d.volumeMl / 1000, 2)} L` : ''}`;
+      const ind = d.indices;
+      $('[data-q-volume]').innerHTML = `<strong>Mesures publiées</strong> (tout le poumon)<br>
+        HAA ${pct(d.haaPourcent)}${d.haaMl != null ? ` (${fmt(d.haaMl, 0)} mL)` : ''}${d.volumeMl != null ? ` · volume pulmonaire ${fmt(d.volumeMl / 1000, 2)} L` : ''}<br>
+        ${ind ? `MLA ${fmt(ind.mla, 0)} UH · asymétrie ${fmt(ind.asymetrie, 2)} · kurtosis ${fmt(ind.kurtosis, 2)}` : ''}<br>
+        <strong>Carte exploratoire</strong> (non validée) : verre dépoli ${pct(v.verreDepoli)} · fibrose ${pct(v.fibrose)} · condensation ${pct(v.condensation)}`;
       $('[data-q-resultats]').hidden = false;
       majNiveaux();
     } catch (e) {

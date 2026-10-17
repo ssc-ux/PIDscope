@@ -4,6 +4,9 @@ export const REFERENCES = {
   goh: 'Goh NSL et al. Interstitial lung disease in systemic sclerosis: a simple staging system. Am J Respir Crit Care Med 2008;177:1248-54. doi:10.1164/rccm.200706-877OC',
   warrick: 'Warrick JH et al. High resolution computed tomography in early scleroderma lung disease. J Rheumatol 1991;18:1520-8. PMID 1765976',
   kazerooni: 'Kazerooni EA et al. Thin-section CT obtained at 10-mm increments versus limited three-level thin-section CT for idiopathic pulmonary fibrosis: correlation with pathologic scoring. AJR 1997;169:977-83. doi:10.2214/ajr.169.4.9308447',
+  best: 'Best AC et al. Quantitative CT indexes in idiopathic pulmonary fibrosis: relationship with physiologic impairment. Radiology 2003;228:407-14. doi:10.1148/radiol.2282020274',
+  camiciottoli: 'Camiciottoli G et al. Lung CT densitometry in systemic sclerosis: correlation with lung function, exercise testing, and quality of life. Chest 2007;131:672-81. doi:10.1378/chest.06-1401',
+  haa2016: 'Podolanczuk AJ et al. High attenuation areas on chest computed tomography in community-dwelling adults: the MESA study. Eur Respir J 2016;48:1442-52. doi:10.1183/13993003.00129-2016',
   haa: 'Lederer DJ et al. Cigarette smoking is associated with subclinical parenchymal lung disease: the MESA-Lung study. Am J Respir Crit Care Med 2009;180:407-14. doi:10.1164/rccm.200812-1966OC',
 };
 
