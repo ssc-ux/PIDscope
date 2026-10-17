@@ -199,8 +199,9 @@ export function proportions(listeClasses) {
 
 // Analyse complète d'une pile en UH : segmentation (densitometrie.js) puis classification de chaque coupe.
 // progression(fraction) : avancement entre 0 et 1.
-export async function quantifierVolume(pile, geometrie, progression = () => {}) {
-  const densite = await analyserDensite(pile, geometrie, (n, total) => progression((2 * n) / (3 * total)));
+// options.masques : masques pulmonaires déjà calculés (lungmask) ; sinon segmentation par seuillage.
+export async function quantifierVolume(pile, geometrie, progression = () => {}, options = {}) {
+  const densite = await analyserDensite(pile, geometrie, (n, total) => progression((2 * n) / (3 * total)), options);
   const pixelMm = geometrie.espacementPixel?.[1] || 1;
   const classes = [];
   for (let k = 0; k < pile.nombre; k++) {

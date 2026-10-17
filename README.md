@@ -37,4 +37,6 @@ Voir [`data/cas/LISEZMOI.md`](data/cas/LISEZMOI.md) et `outils/creer_cas.py`.
 
 ## Licence
 
-Contenu et code sous licence [CC BY-NC-SA 4.0](LICENSE.md). Bibliothèques incluses : [dicomParser](https://github.com/cornerstonejs/dicomParser) et [JPEGLosslessDecoderJS](https://github.com/rii-mango/JPEGLosslessDecoderJS) (MIT). Images : licence de leur source, indiquée sur chaque cas.
+Contenu et code sous licence [CC BY-NC-SA 4.0](LICENSE.md). Segmentation des poumons : [lungmask R231](https://github.com/JoHof/lungmask) (Apache 2.0), converti en ONNX (`modeles/`, voir `modeles/LISEZMOI.md`) et exécuté par [onnxruntime-web](https://github.com/microsoft/onnxruntime) (MIT). Méthode complète : page `methode.html`.
+
+Bibliothèques incluses : [dicomParser](https://github.com/cornerstonejs/dicomParser) et [JPEGLosslessDecoderJS](https://github.com/rii-mango/JPEGLosslessDecoderJS) (MIT). Images : licence de leur source, indiquée sur chaque cas.

@@ -7,6 +7,14 @@
 export const SEUIL_AIR = -200;
 export const HAA_MIN = -600;
 export const HAA_MAX = -250;
+// Bandes de densité de 3D Slicer Lung CT Analyzer (valeurs par défaut, LungCTAnalyzer.py, licence Apache 2.0).
+export const BANDES_LCTA = [
+  { cle: 'emphyseme', nom: 'Emphysème / bulles', min: -1050, max: -950 },
+  { cle: 'aere', nom: 'Aéré', min: -950, max: -750 },
+  { cle: 'infiltre', nom: 'Infiltré', min: -750, max: -400 },
+  { cle: 'collabe', nom: 'Collabé', min: -400, max: 0 },
+  { cle: 'vaisseaux', nom: 'Vaisseaux', min: 0, max: 3000 },
+];
 export const HISTO_BEST_MAX = -200; // borne haute de l'histogramme pulmonaire (Best 2003)
 const HISTO_BEST_MIN = -1024;
 const HISTO_MIN = -1000;
@@ -85,10 +93,12 @@ function reduire(d, w, h) {
 
 // pile : { nombre, async coupe(i) → { donnees: Int16Array (UH), largeur, hauteur } }
 // geometrie : { espacementPixel: [ligne, colonne] mm, espacementCoupes mm, epaisseur mm }
-export async function analyserDensite(pile, geometrie, progression = () => {}) {
+// options.masques : masques pulmonaires demi-résolution déjà calculés (ex. lungmask), un par coupe ; sinon seuillage.
+export async function analyserDensite(pile, geometrie, progression = () => {}, options = {}) {
   const n = pile.nombre;
   let w = 0, h = 0, w2 = 0, h2 = 0;
   const air = [];
+  if (options.masques) return mesurer(pile, geometrie, progression, options.masques);
 
   // Étape 1 : air interne par coupe (demi-résolution).
   for (let k = 0; k < n; k++) {
@@ -139,9 +149,22 @@ export async function analyserDensite(pile, geometrie, progression = () => {}) {
   const plusGrande = Math.max(0, ...tailles);
   const garder = tailles.map((t) => t > 0 && t >= 0.2 * plusGrande);
 
-  // Étape 3 : masque final par coupe + mesures à pleine résolution.
+  // Étape 3 : masque final par coupe (fermeture, comblement des trous), puis mesures.
+  const [, sxSeg] = geometrie.espacementPixel || [1, 1];
+  const rayon = Math.max(1, Math.round(5 / (2 * sxSeg))); // fermeture d'environ 5 mm
+  const masquesSeuil = [];
+  for (let k = 0; k < n; k++) {
+    let m = new Uint8Array(plan);
+    for (let i = 0; i < plan; i++) m[i] = garder[etiquettes[k * plan + i]] ? 1 : 0;
+    masquesSeuil.push(comblerTrous(fermeture(m, w2, h2, rayon), w2, h2));
+  }
+  return mesurer(pile, geometrie, (k, t) => progression(n + k, 2 * n), masquesSeuil);
+}
+
+// Mesures à pleine résolution dans des masques pulmonaires demi-résolution (un par coupe).
+async function mesurer(pile, geometrie, progression, masquesPoumon) {
+  const n = pile.nombre;
   const [sy, sx] = geometrie.espacementPixel || [1, 1];
-  const rayon = Math.max(1, Math.round(5 / (2 * sx))); // fermeture d'environ 5 mm
   const contigu = geometrie.espacementCoupes && geometrie.epaisseur ? geometrie.espacementCoupes <= geometrie.epaisseur * 1.5 : !!geometrie.espacementCoupes;
   const volumeVoxel = sx * sy * (geometrie.espacementCoupes || 0) / 1000; // mL
   const histogramme = new Array((HISTO_MAX - HISTO_MIN) / HISTO_PAS).fill(0);
@@ -149,12 +172,13 @@ export async function analyserDensite(pile, geometrie, progression = () => {}) {
   let total = 0, haa = 0, sommeUH = 0;
   // Moments de l'histogramme (valeurs centrées sur -700 UH pour limiter les erreurs d'arrondi).
   let mn = 0, m1 = 0, m2 = 0, m3 = 0, m4 = 0;
+  const bandes = new Array(BANDES_LCTA.length).fill(0);
+  let w = 0, w2 = 0, h2 = 0, plan = 0;
   for (let k = 0; k < n; k++) {
-    let m = new Uint8Array(plan);
-    for (let i = 0; i < plan; i++) m[i] = garder[etiquettes[k * plan + i]] ? 1 : 0;
-    m = comblerTrous(fermeture(m, w2, h2, rayon), w2, h2);
     const c = await pile.coupe(k);
     const d = c.donnees;
+    if (!w) { w = c.largeur; w2 = w >> 1; h2 = c.hauteur >> 1; plan = w2 * h2; }
+    const m = masquesPoumon[k];
     const calque = new Uint8Array(plan); // 0 : hors poumon, 1 : poumon, 2 : contient des HAA (affichage)
     for (let y = 0; y < h2 * 2; y++)
       for (let x = 0; x < w2 * 2; x++) {
@@ -165,13 +189,14 @@ export async function analyserDensite(pile, geometrie, progression = () => {}) {
         sommeUH += v;
         if (v >= HAA_MIN && v <= HAA_MAX) { haa++; calque[j] = 2; } else if (!calque[j]) calque[j] = 1;
         if (v >= HISTO_MIN && v < HISTO_MAX) histogramme[Math.floor((v - HISTO_MIN) / HISTO_PAS)]++;
+        for (let b = 0; b < BANDES_LCTA.length; b++) if (v >= BANDES_LCTA[b].min && v < BANDES_LCTA[b].max) { bandes[b]++; break; }
         if (v >= HISTO_BEST_MIN && v <= HISTO_BEST_MAX) {
           const t = v + 700;
           mn++; m1 += t; m2 += t * t; m3 += t * t * t; m4 += t * t * t * t;
         }
       }
     masques.push(calque);
-    progression(n + k + 1, n * 2, 'Mesures');
+    progression(k + 1, n);
     if (k % 8 === 0) await new Promise((ok) => setTimeout(ok));
   }
 
@@ -186,6 +211,8 @@ export async function analyserDensite(pile, geometrie, progression = () => {}) {
     haaMl: contigu ? haa * volumeVoxel : null,
     histogramme: { min: HISTO_MIN, pas: HISTO_PAS, valeurs: histogramme },
     indices: indicesHistogramme(mn, m1, m2, m3, m4),
+    // % du poumon segmenté dans chaque bande (voxels hors bandes, < -1050 UH, non comptés).
+    bandes: Object.fromEntries(BANDES_LCTA.map((b, i) => [b.cle, total ? (100 * bandes[i]) / total : 0])),
   };
 }
 

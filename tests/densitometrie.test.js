@@ -32,6 +32,11 @@ test('densitométrie : poumons segmentés, air digestif exclu, HAA exact', async
   // Indices de Best 2003 sur les voxels ≤ -200 UH (le vaisseau à 40 UH est exclu) : loi à deux valeurs.
   const a = voxelsPoumon - 640 - 40, b = 640, p = b / (a + b);
   const proche = (x, y) => assert.ok(Math.abs(x - y) < 1e-6, `${x} ≠ ${y}`);
+  // Bandes LCTA : -850 → aéré, -400 → collabé (borne basse incluse), 40 → vaisseaux.
+  proche(r.bandes.aere, (100 * a) / voxelsPoumon);
+  proche(r.bandes.collabe, (100 * b) / voxelsPoumon);
+  proche(r.bandes.vaisseaux, (100 * 40) / voxelsPoumon);
+  proche(r.bandes.infiltre, 0);
   proche(r.indices.mla, (-850 * a - 400 * b) / (a + b));
   proche(r.indices.asymetrie, (1 - 2 * p) / Math.sqrt(p * (1 - p)));
   proche(r.indices.kurtosis, (1 - 6 * p * (1 - p)) / (p * (1 - p)));

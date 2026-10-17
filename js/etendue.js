@@ -1,9 +1,10 @@
 // Panneau « Étendue » : scores visuels (Goh, Warrick, Kazerooni) et quantification semi-automatique des lésions.
 
 import { goh, NIVEAUX_GOH, warrick, LESIONS_WARRICK, CLASSES_SEGMENTS, kazerooni, LOBES, GRADES_VERRE_DEPOLI, GRADES_FIBROSE, REFERENCES } from './scores.js';
-import { HAA_MIN, HAA_MAX } from './densitometrie.js';
+import { HAA_MIN, HAA_MAX, BANDES_LCTA } from './densitometrie.js';
 import { quantifierVolume, proportions, CLASSES } from './quantification.js';
 import { pileUHDepuisFenetrePoumon } from './piles.js';
+import { chargerModele, segmenterPile } from './lungmask.js';
 
 const PALETTE = {
   [CLASSES.NORMAL]: [94, 214, 160, 0.12],
@@ -60,7 +61,11 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
       <div data-q-dispo hidden>
         <p class="note" style="margin-top:0">Mesures de densité publiées sur tout le poumon, et carte exploratoire des lésions à vérifier et corriger au pinceau sur les 5 niveaux de Goh.</p>
         <p class="note" data-q-approx hidden>⚠ Cas de l’atlas : densités reconstituées depuis les images exportées (précision ± 6 UH, compression) : résultats approximatifs.</p>
+        <p style="margin:.4rem 0">Segmentation des poumons : <select data-q-segmentation>
+          <option value="lungmask" selected>lungmask (IA, recommandé)</option>
+          <option value="seuil">seuillage -200 UH (rapide)</option></select></p>
         <button type="button" class="bouton-principal" data-lancer>Analyser le scanner</button>
+        <p class="note" data-q-etat></p>
         <progress hidden max="1" value="0"></progress>
         <div data-q-resultats hidden>
           <div class="legende-calque"><span class="vd">Verre dépoli</span><span class="fib">Fibrose</span><span class="cond">Condensation</span></div>
@@ -77,10 +82,12 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
           <button type="button" data-q-reporter hidden>Reporter dans le score de Goh</button>
         </div>
       </div>
-      <p class="note"><strong>Mesures publiées</strong> : poumon isolé sous -200 UH (Best 2003), HAA = % de voxels entre ${HAA_MIN} et ${HAA_MAX} UH (MESA), densité moyenne (MLA), asymétrie et kurtosis (en excès, loi normale = 0) des voxels pulmonaires de -1024 à -200 UH. Indices corrélés aux EFR dans la FPI et dans la sclérodermie ; aucune valeur seuil diagnostique : à comparer entre examens comparables d’un même patient.<br>
+      <p class="note"><strong>Segmentation</strong> : lungmask R231 (réseau U-Net, Hofmanninger 2020, Apache 2.0), exécuté dans le navigateur ; sans carte graphique (WebGPU), une coupe tous les 5 mm est analysée et le volume n’est pas calculé. Option : seuillage à -200 UH (Best 2003).<br>
+      <strong>Mesures publiées</strong> : HAA = % de voxels entre ${HAA_MIN} et ${HAA_MAX} UH (MESA), densité moyenne (MLA), asymétrie et kurtosis (en excès, loi normale = 0) des voxels pulmonaires de -1024 à -200 UH. Indices corrélés aux EFR dans la FPI et dans la sclérodermie ; aucune valeur seuil diagnostique : à comparer entre examens comparables d’un même patient.<br>
       <strong>Carte des lésions</strong> : méthode PIDscope <strong>exploratoire, non validée</strong> (condensation = ≥ 60 % de pixels &gt; -300 UH dans une fenêtre de 6 mm ; fibrose = réseau de structures fines ; verre dépoli = parenchyme non dense ≥ -700 UH). Calibrée sur 3 scanners réels et des lésions synthétiques ; elle ne remplace ni la lecture visuelle ni les outils validés (CALIPER, QILD, DTA, non disponibles en libre accès).<br>
       <strong>Limites</strong> : outil pédagogique, pas un dispositif médical. Résultats dépendants du filtre de reconstruction, de l’épaisseur de coupe, de l’inspiration, de l’injection et du constructeur ; atélectasies déclives et bruit des basses doses ; les densités ne distinguent pas un verre dépoli inflammatoire d’une fibrose fine ; valeurs non interchangeables avec les logiciels commerciaux.<br>
-      ${REFERENCES.best}<br>${REFERENCES.camiciottoli}<br>${REFERENCES.haa}<br>${REFERENCES.haa2016}</p>
+      Bandes de densité : 3D Slicer Lung CT Analyzer (Bumm, licence Apache 2.0) : emphysème -1050/-950, aéré -950/-750, infiltré -750/-400, collabé -400/0, vaisseaux ≥ 0 UH ; descriptives, sans validation publiée dans les PID.<br>
+      ${REFERENCES.lungmask}<br>${REFERENCES.best}<br>${REFERENCES.camiciottoli}<br>${REFERENCES.haa}<br>${REFERENCES.haa2016}</p>
     </section>`;
 
   const $ = (s) => conteneur.querySelector(s);
@@ -154,13 +161,14 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
     const lignes = NIVEAUX_GOH.map((nom, i) => {
       const k = niveaux[i];
       if (k == null) return `<tr><td>${i + 1}. ${nom}</td><td class="note">non défini</td></tr>`;
+      if (!analyse.classes[k]) return `<tr><td>${i + 1}. coupe ${k + 1}</td><td class="note">non analysée : relancez l’analyse</td></tr>`;
       const p = proportions([analyse.classes[k]]);
       const ok = analyse.valides.has(i);
       return `<tr data-q-niveau="${i}"${analyse.niveauActif === i ? ' style="outline:1px solid var(--accent)"' : ''}><td><button type="button" class="lien-coupe" data-q-aller="${i}">${i + 1}. coupe ${k + 1}</button></td>
         <td>VD ${pct(p.verreDepoli)} · Fib ${pct(p.fibrose)} ${ok ? '✓' : '<span class="badge">auto</span>'}</td></tr>`;
     });
     $('[data-q-niveaux]').innerHTML = lignes.join('');
-    const definis = niveaux.map((k, i) => [k, i]).filter(([k]) => k != null);
+    const definis = niveaux.map((k, i) => [k, i]).filter(([k]) => k != null && analyse.classes[k]);
     if (definis.length === 5) {
       const parNiveau = definis.map(([k]) => proportions([analyse.classes[k]]));
       const moy = (cle) => parNiveau.reduce((t, p) => t + p[cle], 0) / 5;
@@ -185,13 +193,39 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
     const bouton = $('[data-lancer]');
     barre.hidden = false;
     bouton.disabled = true;
+    const etat = $('[data-q-etat]');
     try {
-      const r = await quantifierVolume(source, {
+      const geometrie = {
         espacementPixel: pile.calibre ? pile.espacementPixel : [pile.pixelMm, pile.pixelMm],
         espacementCoupes: pile.espacementCoupes,
         epaisseur: pile.serie?.epaisseur ?? pile.espacementCoupes,
-      }, (f) => { barre.value = f; });
+      };
+      let indices = Array.from({ length: source.nombre }, (_, k) => k);
+      let r;
+      if ($('[data-q-segmentation]').value === 'lungmask') {
+        etat.textContent = 'Téléchargement du modèle lungmask…';
+        const modele = await chargerModele((f) => { barre.value = f; });
+        if (modele.fournisseur === 'wasm') {
+          // Sans carte graphique, une coupe tous les 5 mm (plus les niveaux de Goh) pour garder un temps raisonnable.
+          const pas = Math.max(1, Math.round(5 / (geometrie.espacementCoupes || 5)));
+          indices = [...new Set([...indices.filter((k) => k % pas === 0), ...niveaux.filter((k) => k != null)])].sort((a, b) => a - b);
+          geometrie.espacementCoupes = (geometrie.espacementCoupes || 1) * pas; // échantillonnage : volume non calculé
+        }
+        const sous = { nombre: indices.length, coupe: (i) => source.coupe(indices[i]) };
+        etat.textContent = `Segmentation lungmask (${modele.fournisseur === 'webgpu' ? 'carte graphique, toutes les coupes' : `processeur, ${indices.length} coupes`})…`;
+        const masques = await segmenterPile(sous, modele.executer, (f) => { barre.value = f; });
+        etat.textContent = 'Mesures…';
+        r = await quantifierVolume(sous, geometrie, (f) => { barre.value = f; }, { masques });
+        etat.textContent = `Segmentation : lungmask R231, ${modele.fournisseur === 'webgpu' ? 'toutes les coupes' : `${indices.length} coupes (1 tous les 5 mm + niveaux de Goh)`}.`;
+      } else {
+        r = await quantifierVolume(source, geometrie, (f) => { barre.value = f; });
+        etat.textContent = 'Segmentation : seuillage à -200 UH (Best 2003), toutes les coupes.';
+      }
       if (vis.pile !== pile) return; // une autre série a été ouverte entre-temps
+      // Replace les résultats sur la numérotation complète (null : coupe non analysée).
+      const classes = new Array(pile.nombre).fill(null);
+      indices.forEach((k, i) => { classes[k] = r.classes[i]; });
+      r.classes = classes;
       analyse = { vis, pile, classes: r.classes, valides: new Set(), niveauActif: null };
       vis.definirCalque({ largeur: r.largeurMasque, hauteur: r.hauteurMasque, masques: r.classes, palette: PALETTE });
       vis.surPeinture = (k) => { const i = niveaux.indexOf(k); if (i >= 0) analyse.valides.delete(i); majNiveaux(); };
@@ -200,6 +234,7 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
       $('[data-q-volume]').innerHTML = `<strong>Mesures publiées</strong> (tout le poumon)<br>
         HAA ${pct(d.haaPourcent)}${d.haaMl != null ? ` (${fmt(d.haaMl, 0)} mL)` : ''}${d.volumeMl != null ? ` · volume pulmonaire ${fmt(d.volumeMl / 1000, 2)} L` : ''}<br>
         ${ind ? `MLA ${fmt(ind.mla, 0)} UH · asymétrie ${fmt(ind.asymetrie, 2)} · kurtosis ${fmt(ind.kurtosis, 2)}` : ''}<br>
+        Bandes (Lung CT Analyzer) : ${BANDES_LCTA.map((b) => `${b.nom.toLowerCase()} ${pct(d.bandes[b.cle])}`).join(' · ')}<br>
         <strong>Carte exploratoire</strong> (non validée) : verre dépoli ${pct(v.verreDepoli)} · fibrose ${pct(v.fibrose)} · condensation ${pct(v.condensation)}`;
       $('[data-q-resultats]').hidden = false;
       majNiveaux();
@@ -233,6 +268,7 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
   });
   $('[data-q-reporter]').addEventListener('click', () => {
     niveaux.forEach((k, i) => {
+      if (k == null || !analyse.classes[k]) return;
       const p = proportions([analyse.classes[k]]);
       $(`[data-goh="${i}"]`).value = String(Math.min(100, Math.round((p.verreDepoli + p.fibrose) / 5) * 5));
     });

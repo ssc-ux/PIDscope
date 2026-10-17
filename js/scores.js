@@ -7,6 +7,7 @@ export const REFERENCES = {
   best: 'Best AC et al. Quantitative CT indexes in idiopathic pulmonary fibrosis: relationship with physiologic impairment. Radiology 2003;228:407-14. doi:10.1148/radiol.2282020274',
   camiciottoli: 'Camiciottoli G et al. Lung CT densitometry in systemic sclerosis: correlation with lung function, exercise testing, and quality of life. Chest 2007;131:672-81. doi:10.1378/chest.06-1401',
   haa2016: 'Podolanczuk AJ et al. High attenuation areas on chest computed tomography in community-dwelling adults: the MESA study. Eur Respir J 2016;48:1442-52. doi:10.1183/13993003.00129-2016',
+  lungmask: 'Hofmanninger J et al. Automatic lung segmentation in routine imaging is primarily a data diversity problem, not a methodology problem. Eur Radiol Exp 2020;4:50. doi:10.1186/s41747-020-00173-2',
   haa: 'Lederer DJ et al. Cigarette smoking is associated with subclinical parenchymal lung disease: the MESA-Lung study. Am J Respir Crit Care Med 2009;180:407-14. doi:10.1164/rccm.200812-1966OC',
 };
 

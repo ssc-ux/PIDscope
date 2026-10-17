@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Méthode d’analyse · PIDscope</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/entete.js"></script>
+</head>
+<body data-page="methode.html">
+  <header class="entete"></header>
+  <main>
+    <article class="prose">
+      <h1>Méthode d’analyse</h1>
+      <p>Comment PIDscope lit un scanner, segmente les poumons, mesure l’atteinte et ce que vaut chaque résultat. Tout s’exécute dans le navigateur : aucune image n’est envoyée.</p>
+      <p><span class="badge relu">Validé</span> = méthode publiée et reproduite à l’identique, vérifiée par nos tests. <span class="badge brouillon">Exploratoire</span> = méthode PIDscope, non validée cliniquement.</p>
+
+      <h2>1. Lecture des images</h2>
+      <ul>
+        <li><strong>DICOM</strong> (« Mon scanner ») : non compressé, JPEG Lossless ou RLE Lossless ; conversion en unités Hounsfield (pente et ordonnée de recalibrage) ; tri des coupes selon leur position réelle, de l’apex vers les bases ; alerte si l’espacement est irrégulier. Le décodage est identique à pydicom sur 104 coupes réelles compressées (27 millions de pixels, aucune différence).</li>
+        <li><strong>Cas de l’atlas</strong> : images exportées en fenêtre pulmonaire (L -600 / W 1500) ; les UH sont reconstituées à ± 6 UH. Sur le scanner normal de l’atlas, la densité moyenne obtenue diffère de 3 UH de celle du volume d’origine.</li>
+      </ul>
+
+      <h2>2. Segmentation des poumons <span class="badge relu">Validé</span></h2>
+      <p><strong>Par défaut : lungmask R231</strong>, réseau U-Net entraîné sur 231 scanners de routine couvrant de nombreuses pathologies (Dice 0,98 ± 0,03 dans l’article d’origine). Prétraitement reproduit à l’identique : UH bornées à [-1024 ; 600], recadrage sur le corps, image 256 × 256. Le modèle est converti en ONNX et exécuté par onnxruntime-web : sur la carte graphique (WebGPU) pour toutes les coupes ; sinon sur le processeur, pour une coupe tous les 5 mm plus les 5 niveaux de Goh (le volume n’est alors pas calculé).</p>
+      <p><strong>Vérification de notre portage</strong> : sur 3 scanners réels, masque du navigateur comparé à celui du paquet Python officiel : Dice 0,9986 à 1,0000 (modèle en demi-précision, carte graphique) ; modèle allégé int8 (processeur, 29 Mo) : Dice 0,991 à 0,998.</p>
+      <p><strong>Option : seuillage</strong> à -200 UH (seuil de Best 2003), air relié au bord de l’image exclu, plus grandes composantes 3D (exclut l’air digestif), fermeture morphologique de 5 mm et comblement des trous. Concordance avec lungmask : Dice 0,98 sur le scanner normal, 0,88 à 0,92 sur les scanners pathologiques (zones denses oubliées, pneumomédiastin inclus).</p>
+      <p><strong>Limites</strong> : lungmask inclut les épanchements pleuraux, les tumeurs et les poches d’air dans le poumon ; la trachée est exclue. Toujours vérifier le masque.</p>
+
+      <h2>3. Mesures de densité publiées <span class="badge relu">Validé</span></h2>
+      <table>
+        <tr><th>Mesure</th><th>Définition</th><th>Source</th></tr>
+        <tr><td>HAA</td><td>% du poumon entre -600 et -250 UH (verre dépoli et réticulations)</td><td>MESA : Lederer 2009 ; valeur pronostique : Podolanczuk 2016</td></tr>
+        <tr><td>Densité moyenne (MLA)</td><td>Moyenne des voxels pulmonaires de -1024 à -200 UH</td><td>Best 2003 (FPI) ; Camiciottoli 2007 (sclérodermie)</td></tr>
+        <tr><td>Asymétrie, kurtosis</td><td>Forme de l’histogramme sur la même plage ; kurtosis en excès (loi normale = 0). La fibrose aplatit l’histogramme et le déplace vers les densités élevées.</td><td>Best 2003 ; Camiciottoli 2007</td></tr>
+        <tr><td>Bandes de densité</td><td>Emphysème -1050/-950, aéré -950/-750, infiltré -750/-400, collabé -400/0, vaisseaux ≥ 0 UH (descriptives, sans validation dans les PID)</td><td>3D Slicer Lung CT Analyzer (Apache 2.0)</td></tr>
+      </table>
+      <p>Ces indices sont corrélés aux EFR mais n’ont pas de seuil diagnostique : ils servent à comparer deux examens comparables d’un même patient (même filtre, même épaisseur, inspiration).</p>
+
+      <h2>4. Carte des lésions <span class="badge brouillon">Exploratoire</span></h2>
+      <p>Aucun outil validé de classification des lésions de PID (CALIPER, QILD, DTA, SOFIA) n’est disponible en libre accès. PIDscope propose donc une carte maison, à confronter à sa propre lecture. Pour chaque cellule du poumon (≈ 1 à 1,4 mm) :</p>
+      <ol>
+        <li><strong>Condensation</strong> : au moins 60 % de pixels &gt; -300 UH dans une fenêtre de 6 mm ; îlots &lt; 100 mm² ignorés (vaisseaux).</li>
+        <li><strong>Fibrose</strong> : au moins 25 % de « structures fines » dans une fenêtre de 10 mm. Une structure fine est un trait continu (≥ 3 mm) plus dense que son voisinage d’au moins 110 UH après lissage, et plus étroit que 2,5 mm (« top-hat » morphologique) : réticulations, parois de rayon de miel. Les vaisseaux plus larges sont ignorés.</li>
+        <li><strong>Verre dépoli</strong> : parenchyme non dense de densité moyenne ≥ -700 UH dans la fenêtre de 6 mm.</li>
+        <li>Îlots de moins de 15 mm² ignorés (bruit).</li>
+      </ol>
+      <p><strong>Calibrage</strong> : sur le scanner normal, faux positifs 0,6 % (verre dépoli), 1,3 % (fibrose), 2 % (condensation) ; réticulations et rayon de miel synthétiques insérés dans ce poumon détectés à 87 % et 96 %. Aucun vrai scanner fibrosant n’a encore servi de référence : la sensibilité réelle à la fibrose est inconnue.</p>
+
+      <h2>5. Vérification semi-automatique et score de Goh <span class="badge relu">Validé</span> pour le score</h2>
+      <ol>
+        <li>Placer les 5 niveaux de Goh (onglet Goh, 📍).</li>
+        <li>Sur chaque niveau, corriger la carte au pinceau (verre dépoli, fibrose, condensation, poumon normal, hors poumon), puis valider.</li>
+        <li>Étendue par niveau = (verre dépoli + fibrose) / poumon ; moyenne des 5 niveaux ; « Reporter dans Goh » arrondit chaque niveau à 5 %.</li>
+        <li>Stade de Goh 2008 : &lt; 10 % limitée, &gt; 30 % étendue, 10–30 % selon la CVF (≥ 70 % limitée).</li>
+      </ol>
+      <p>Le score de Goh est validé (sclérodermie) ; sa mesure assistée par la carte ne l’est pas : la vérification au pinceau est indispensable.</p>
+
+      <h2>6. Scores visuels</h2>
+      <p>Goh 2008, Warrick 1991, Kazerooni 1997 : définitions des articles d’origine, calculs couverts par des tests automatiques. Voir les <a href="references.html">références</a>.</p>
+
+      <h2>7. Contrôle qualité</h2>
+      <ul>
+        <li>Tests automatiques (à chaque modification du code) : lecture DICOM (UH exactes, tri, formats compressés), scores, densitométrie et indices d’histogramme sur fantôme à valeurs exactes, carte des lésions sur coupe synthétique, mise en forme des textes.</li>
+        <li>Validations ponctuelles : décodage DICOM contre pydicom ; segmentation du navigateur contre lungmask officiel ; seuillage contre lungmask.</li>
+      </ul>
+
+      <h2>8. Limites générales</h2>
+      <ul>
+        <li>Outil pédagogique, pas un dispositif médical ; ne remplace ni la lecture du radiologue ni la discussion multidisciplinaire.</li>
+        <li>Résultats dépendants du filtre de reconstruction, de l’épaisseur de coupe, de l’inspiration, de l’injection et du constructeur ; bruit des basses doses ; atélectasies déclives (le procubitus les fait disparaître).</li>
+        <li>Les densités ne distinguent pas un verre dépoli inflammatoire d’une fibrose fine ; valeurs non interchangeables avec les logiciels commerciaux.</li>
+      </ul>
+
+      <h2>9. Outils utilisés</h2>
+      <table>
+        <tr><th>Outil</th><th>Rôle</th><th>Licence</th></tr>
+        <tr><td>dicomParser (Cornerstone)</td><td>Lecture des en-têtes DICOM</td><td>MIT</td></tr>
+        <tr><td>JPEGLosslessDecoderJS</td><td>Décompression JPEG Lossless (corrigé pour le dernier pixel)</td><td>MIT</td></tr>
+        <tr><td>lungmask R231 (Hofmanninger 2020)</td><td>Segmentation des poumons</td><td>Apache 2.0</td></tr>
+        <tr><td>onnxruntime-web (Microsoft)</td><td>Exécution du réseau dans le navigateur</td><td>MIT</td></tr>
+        <tr><td>3D Slicer Lung CT Analyzer</td><td>Seuils des bandes de densité</td><td>Apache 2.0</td></tr>
+        <tr><td>Code PIDscope</td><td>Visualiseur, densitométrie, carte, scores</td><td>CC BY-NC-SA 4.0</td></tr>
+      </table>
+    </article>
+  </main>
+  <footer class="pied"></footer>
+</body>
+</html>

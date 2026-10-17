@@ -6,6 +6,7 @@ const LOGO = `<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20
 const PAGES = [
   ['index.html', 'Atlas'],
   ['fiches.html', 'Fiches'],
+  ['methode.html', 'Méthode'],
   ['scanner.html', 'Mon scanner'],
 ];
 
