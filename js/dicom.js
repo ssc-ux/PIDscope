@@ -1,12 +1,17 @@
 // Lecture DICOM : en-têtes, décodage des pixels en unités Hounsfield, regroupement en séries.
-// Tout se fait localement dans le navigateur. Seuls les formats non compressés little endian sont acceptés :
-// mieux vaut refuser clairement un fichier que l'afficher faussement.
+// Tout se fait localement dans le navigateur. Formats acceptés : non compressé little endian,
+// JPEG Lossless et RLE Lossless (sans perte). Les autres sont refusés clairement plutôt qu'affichés faussement.
+
+import { Decoder as DecodeurJpegLossless } from '../vendor/jpeg-lossless.mjs';
 
 const dp = () => globalThis.dicomParser;
 
 export const TRANSFER_SYNTAXES_SUPPORTEES = {
-  '1.2.840.10008.1.2': 'Implicit VR Little Endian',
-  '1.2.840.10008.1.2.1': 'Explicit VR Little Endian',
+  '1.2.840.10008.1.2': { nom: 'Implicit VR Little Endian', compression: null },
+  '1.2.840.10008.1.2.1': { nom: 'Explicit VR Little Endian', compression: null },
+  '1.2.840.10008.1.2.4.57': { nom: 'JPEG Lossless', compression: 'jpeg-lossless' },
+  '1.2.840.10008.1.2.4.70': { nom: 'JPEG Lossless SV1', compression: 'jpeg-lossless' },
+  '1.2.840.10008.1.2.5': { nom: 'RLE Lossless', compression: 'rle' },
 };
 
 const nombres = (ds, tag) => {
@@ -60,25 +65,89 @@ export function lireEntete(buffer) {
     fenetreCentre: nombre(ds, 'x00281050'),
     fenetreLargeur: nombre(ds, 'x00281051'),
     pixelOffset: pixel.dataOffset,
-    pixelLongueur: pixel.length,
+    // Données encapsulées (compressées) : longueur indéfinie, lues jusqu'à la fin du fichier.
+    pixelLongueur: pixel.hadUndefinedLength ? null : pixel.length,
+    compression: TRANSFER_SYNTAXES_SUPPORTEES[ts]?.compression ?? null,
   };
   m.nonSupporte = raisonNonSupporte(m, pixel);
   return m;
 }
 
 function raisonNonSupporte(m, pixel) {
-  if (!TRANSFER_SYNTAXES_SUPPORTEES[m.transferSyntax] || pixel.encapsulatedPixelData || pixel.hadUndefinedLength)
-    return 'DICOM compressé (' + (m.transferSyntax || '?') + ') : exportez la série en DICOM non compressé.';
+  const ts = TRANSFER_SYNTAXES_SUPPORTEES[m.transferSyntax];
+  if (!ts || !!ts.compression !== !!pixel.hadUndefinedLength)
+    return `Format DICOM non pris en charge (${m.transferSyntax || '?'}, compression avec perte ou JPEG 2000) : exportez la série en DICOM non compressé.`;
   if (m.echantillons !== 1 || !/^MONOCHROME[12]$/.test(m.photometrie)) return 'Image couleur : non prise en charge.';
   if (m.images > 1) return 'DICOM multi-images (enhanced) : non pris en charge pour l’instant.';
   if (m.bitsAlloues !== 8 && m.bitsAlloues !== 16) return `${m.bitsAlloues} bits par pixel : non pris en charge.`;
   if (!m.lignes || !m.colonnes) return 'Dimensions de l’image absentes.';
-  if (m.pixelLongueur < m.lignes * m.colonnes * (m.bitsAlloues / 8)) return 'Données de pixels incomplètes.';
+  if (!m.compression && m.pixelLongueur < m.lignes * m.colonnes * (m.bitsAlloues / 8)) return 'Données de pixels incomplètes.';
   return null;
+}
+
+// Fragments d'une image encapsulée : items (FFFE,E000) après la table d'offsets, jusqu'au délimiteur (FFFE,E0DD).
+function fragments(octets) {
+  const v = new DataView(octets);
+  const morceaux = [];
+  let p = 0;
+  let premier = true;
+  while (p + 8 <= octets.byteLength) {
+    const groupe = v.getUint16(p, true);
+    const element = v.getUint16(p + 2, true);
+    const longueur = v.getUint32(p + 4, true);
+    p += 8;
+    if (groupe !== 0xfffe || element === 0xe0dd) break;
+    if (element !== 0xe000) throw new Error('Données encapsulées invalides.');
+    if (!premier) morceaux.push(new Uint8Array(octets, p, longueur)); // le 1er item est la table d'offsets
+    premier = false;
+    p += longueur;
+  }
+  const total = morceaux.reduce((t, f) => t + f.length, 0);
+  const flux = new Uint8Array(total);
+  let o = 0;
+  for (const f of morceaux) { flux.set(f, o); o += f.length; }
+  return flux;
+}
+
+// RLE Lossless (DICOM PS3.5 annexe G) : un segment PackBits par octet de l'échantillon, octet de poids fort en premier.
+function decoderRle(flux, m) {
+  const v = new DataView(flux.buffer, flux.byteOffset, flux.byteLength);
+  const nbSegments = v.getUint32(0, true);
+  const octetsParPixel = m.bitsAlloues / 8;
+  if (nbSegments !== octetsParPixel) throw new Error('RLE : nombre de segments inattendu.');
+  const n = m.lignes * m.colonnes;
+  const sortie = new Uint8Array(n * octetsParPixel); // little endian
+  for (let s = 0; s < nbSegments; s++) {
+    const debut = v.getUint32(4 + 4 * s, true);
+    const fin = s + 1 < nbSegments ? v.getUint32(8 + 4 * s, true) : flux.byteLength;
+    const decalage = octetsParPixel - 1 - s; // segment 0 = octet de poids fort
+    let p = debut, i = 0;
+    while (p < fin && i < n) {
+      const c = (flux[p++] << 24) >> 24;
+      if (c >= 0) { for (let k = 0; k <= c && i < n; k++) sortie[(i++) * octetsParPixel + decalage] = flux[p++]; }
+      else if (c !== -128) { const b = flux[p++]; for (let k = 0; k < 1 - c && i < n; k++) sortie[(i++) * octetsParPixel + decalage] = b; }
+    }
+  }
+  return sortie.buffer;
 }
 
 // Convertit les octets de Pixel Data en valeurs physiques (UH pour un scanner), arrondies en Int16.
 export function decoderPixels(m, octets) {
+  if (m.compression === 'jpeg-lossless') {
+    // Le décodeur s'arrête avant le dernier pixel quand sa lecture anticipée atteint le marqueur de fin (EOI) :
+    // on insère quelques octets nuls avant EOI, jamais émis puisque le décodage s'arrête au nombre de pixels.
+    const brutJpeg = fragments(octets);
+    let fin = brutJpeg.length;
+    while (fin > 1 && !(brutJpeg[fin - 2] === 0xff && brutJpeg[fin - 1] === 0xd9)) fin--;
+    const flux = new Uint8Array((fin > 1 ? fin - 2 : brutJpeg.length) + 10);
+    flux.set(brutJpeg.subarray(0, fin > 1 ? fin - 2 : brutJpeg.length));
+    flux[flux.length - 2] = 0xff;
+    flux[flux.length - 1] = 0xd9;
+    const brut = new DecodeurJpegLossless().decompress(flux.buffer, flux.byteOffset, flux.byteLength);
+    octets = brut.buffer ? brut.buffer.slice(brut.byteOffset, brut.byteOffset + brut.byteLength) : brut;
+  } else if (m.compression === 'rle') {
+    octets = decoderRle(fragments(octets), m);
+  }
   const n = m.lignes * m.colonnes;
   const brut = m.bitsAlloues === 16
     ? new Uint16Array(octets.slice(0, n * 2))

@@ -2,6 +2,7 @@
 
 import { analyserFichiers, PileDicom, PileFichiersImage } from './piles.js';
 import { Visualiseur } from './visualiseur.js';
+import { creerPanneauEtendue } from './etendue.js';
 
 const $ = (s) => document.querySelector(s);
 const etat = $('#etat');
@@ -10,6 +11,14 @@ const ecrans = [...document.querySelectorAll('.ecran')];
 const visualiseurs = [null, null];
 const positionSynchro = [null, null]; // position fractionnaire pour la synchronisation
 let cible = 0; // écran qui recevra la prochaine série ouverte
+let actif = 0; // examen auquel s'appliquent les mesures d'étendue
+const panneau = creerPanneauEtendue($('#etendue'), () => visualiseurs[actif]);
+
+function activer(i) {
+  actif = i;
+  $('#etendue-cible').textContent = visualiseurs[1] && !ecrans[1].hidden ? `examen ${i + 1}` : '';
+  panneau.majDisponibilite();
+}
 
 const formaterDate = (d) => (/^\d{8}$/.test(d) ? `${d.slice(6)}/${d.slice(4, 6)}/${d.slice(0, 4)}` : '');
 const mm = (v) => (v ? `${+v.toFixed(2)} mm` : null);
@@ -98,16 +107,25 @@ async function traiter(fichiers) {
 function ouvrir(pile, titre) {
   const i = cible;
   const ecran = ecrans[i];
-  if (!visualiseurs[i]) visualiseurs[i] = new Visualiseur(ecran.querySelector('.vis'), { surChangement: synchroniser });
+  obtenirVisualiseur(i);
   ecran.querySelector('.ecran-titre').textContent = (i === 1 ? 'Examen 2 · ' : visualiseurs[1] ? 'Examen 1 · ' : '') + titre;
   ecran.hidden = false;
   visualiseurs[i].definirPile(pile);
   positionSynchro.fill(null);
   $('#barre-comparaison').hidden = false;
-  $('#aide').hidden = false;
+  $('#bloc-etendue').hidden = false;
   majComparaison();
-  ecran.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  activer(i);
 }
+
+function obtenirVisualiseur(i) {
+  if (!visualiseurs[i]) {
+    visualiseurs[i] = new Visualiseur(ecrans[i].querySelector('.vis'), { surChangement: synchroniser });
+    visualiseurs[i].zone.addEventListener('pointerdown', () => activer(i));
+  }
+  return visualiseurs[i];
+}
+obtenirVisualiseur(0);
 
 function synchroniser(source, delta) {
   const i = visualiseurs.indexOf(source);
@@ -142,6 +160,7 @@ $('#fermer-comparaison').addEventListener('click', () => {
   cible = 0;
   ecrans[0].querySelector('.ecran-titre').textContent = ecrans[0].querySelector('.ecran-titre').textContent.replace(/^Examen 1 · /, '');
   majComparaison();
+  activer(0);
 });
 $('#synchro').addEventListener('change', () => positionSynchro.fill(null));
 

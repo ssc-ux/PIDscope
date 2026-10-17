@@ -19,16 +19,19 @@ const series = construireSeries(entrees);
 const serie = (desc) => series.find((s) => s.description === desc);
 const pixels = (e) => {
   const buf = lire(e.source);
-  return decoderPixels(e.entete, buf.slice(e.entete.pixelOffset, e.entete.pixelOffset + e.entete.pixelLongueur));
+  const { pixelOffset: o, pixelLongueur: l } = e.entete;
+  return decoderPixels(e.entete, buf.slice(o, l == null ? undefined : o + l));
 };
 
 test('un fichier non DICOM est ignoré', () => {
   assert.equal(lireEntete(lire('pas_dicom.txt')), null);
 });
 
-test('les séries sont regroupées et les compressées refusées en dernier', () => {
-  assert.deepEqual(series.map((s) => s.description), ['Thorax A', 'Thorax B', 'Compressee']);
-  assert.match(series[2].nonSupporte, /compressé/);
+test('les séries sont regroupées et les formats non pris en charge mis en dernier', () => {
+  assert.deepEqual(series.map((s) => s.description), ['Thorax A', 'Thorax B', 'Thorax RLE', 'Thorax JPEG', 'Compressee']);
+  assert.match(series[4].nonSupporte, /non pris en charge/);
+  assert.equal(serie('Thorax RLE').nonSupporte, null);
+  assert.equal(serie('Thorax JPEG').nonSupporte, null);
   assert.equal(serie('Thorax A').nonSupporte, null);
 });
 
@@ -47,6 +50,15 @@ test('UH exactes : non signé 12 bits, intercept -1024 (explicit VR)', () => {
     for (let i = 0; i < d.length; i++) assert.equal(d[i], -1000 + 100 * k + (i % 8));
   });
 });
+
+for (const desc of ['Thorax RLE', 'Thorax JPEG']) {
+  test(`UH exactes après décompression sans perte : ${desc}`, () => {
+    serie(desc).coupes.forEach((c, k) => {
+      const d = pixels(c);
+      for (let i = 0; i < d.length; i++) assert.equal(d[i], -1000 + 100 * k + (i % 8));
+    });
+  });
+}
 
 test('UH exactes : signé 16 bits, pente 2, intercept -100 (implicit VR)', () => {
   const b = serie('Thorax B');

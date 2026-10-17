@@ -1,0 +1,36 @@
+{
+  "id": "normal-hrct",
+  "titre": "Scanner thoracique normal en haute résolution",
+  "description": "Le poumon normal coupe par coupe : repères anatomiques et niveaux du score de Goh.",
+  "categorie": "Bases",
+  "maladies": [],
+  "patterns": [
+    "Normal"
+  ],
+  "statut": "brouillon",
+  "source": {
+    "nom": "Zenodo : De-identified HRCT Dataset with Airway, Lobe, and Segment Annotations",
+    "url": "https://doi.org/10.5281/zenodo.19695056",
+    "auteur": "Soleimani, 2026",
+    "licence": "CC BY 4.0",
+    "modifications": "Volume NRRD (coupes de 0,7 mm) exporté une coupe sur deux (1,4 mm) en WebP, fenêtres poumon et médiastin."
+  },
+  "serie": {
+    "nombre": 161,
+    "chiffres": 4,
+    "espacement_mm": 1.4,
+    "fenetres": {
+      "poumon": "poumon/{n}.webp",
+      "mediastin": "mediastin/{n}.webp"
+    },
+    "coupe_initiale": 51
+  },
+  "niveaux_goh": [
+    28,
+    51,
+    86,
+    96,
+    106
+  ],
+  "texte": "## Ce qu'il faut regarder\nScanner sans injection, acquisition volumique en coupes fines (haute résolution), faible dose : le bruit visible en fenêtre médiastinale est normal.\n\n- **Parenchyme** homogène, gris sombre en fenêtre pulmonaire, sans plage plus dense ni plus claire.\n- **Vaisseaux** : ils se divisent et s'effilent régulièrement du hile vers la périphérie [coupe 86].\n- **Bronches** : paroi fine, calibre inférieur à celui de l'artère qui les accompagne ; normalement non visibles dans le centimètre sous-pleural.\n- **Interstitium** : les septa interlobulaires ne sont pas visibles ; les scissures sont fines et régulières.\n- **Plèvre** : fine, régulière, sans ligne sous-pleurale.\n\n## Repères anatomiques\n- Apex pulmonaires [coupe 13]\n- Trachée [coupe 34]\n- Carène [coupe 51] et bronches souches [coupe 54]\n- Confluence des veines pulmonaires dans l'oreillette gauche [coupe 86]\n- Dôme de la coupole diaphragmatique droite (foie) [coupe 108]\n\n## Les 5 niveaux du score de Goh\nCes niveaux servent à estimer l'étendue d'une PID (onglet **Étendue**). Repères proposés sur ce scanner :\n- 1 : origine des gros vaisseaux [coupe 28]\n- 2 : carène [coupe 51]\n- 3 : confluence des veines pulmonaires [coupe 86]\n- 4 : à mi-distance entre les niveaux 3 et 5 [coupe 96]\n- 5 : juste au-dessus de la coupole droite [coupe 106]\n\nEntraînez-vous à retrouver ces niveaux vous-même : c'est le premier geste de toute lecture de scanner de PID."
+}

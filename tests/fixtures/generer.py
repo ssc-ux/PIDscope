@@ -1,5 +1,5 @@
 """Génère de petits fichiers DICOM synthétiques avec pydicom (bibliothèque indépendante de celle du site).
-Usage : python3 tests/fixtures/generer.py   (pip install pydicom numpy)
+Usage : python3 tests/fixtures/generer.py   (pip install pydicom numpy python-gdcm)
 
 Valeur attendue en UH : -1000 + 100 * k + c, où k est le rang de la coupe depuis l'apex (0 = la plus haute)
 et c la colonne. Les fichiers sont écrits dans le désordre pour vérifier le tri.
@@ -7,7 +7,7 @@ et c la colonne. Les fichiers sont écrits dans le désordre pour vérifier le t
 from pathlib import Path
 import numpy as np
 from pydicom.dataset import Dataset, FileMetaDataset
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, JPEGLosslessSV1, generate_uid
+from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, JPEG2000Lossless, RLELossless, generate_uid
 from pydicom.encaps import encapsulate
 
 ICI = Path(__file__).parent
@@ -68,11 +68,31 @@ for k in range(N):
     ds.PixelData = ((uh(k) + 100) // 2).astype('<i2').tobytes()
     ecrire(ds, f'b_{k}.dcm', implicite=True)
 
-# Série C : compressée (JPEG lossless) → doit être refusée proprement.
-ds = base(generate_uid(), JPEGLosslessSV1, 0, instance=1, description='Compressee')
+# Série C : JPEG 2000 (non pris en charge) → doit être refusée proprement.
+ds = base(generate_uid(), JPEG2000Lossless, 0, instance=1, description='Compressee')
 ds.BitsStored, ds.HighBit, ds.PixelRepresentation = 12, 11, 0
-ds.PixelData = encapsulate([b'\xff\xd8\x00\x00\xff\xd9'])
+ds.PixelData = encapsulate([b'\xff\x4f\xff\xd9'])
 ecrire(ds, 'c_compresse.dcm')
+
+# Séries D (RLE Lossless, encodée par pydicom) et E (JPEG Lossless SV1, encodée par GDCM) : mêmes UH que la série A.
+import gdcm
+for nom, desc in (('d', 'Thorax RLE'), ('e', 'Thorax JPEG')):
+    uid = generate_uid()
+    for k in range(N):
+        ds = base(uid, ExplicitVRLittleEndian, 50 - 2.5 * k, instance=k + 1, description=desc)
+        ds.BitsStored, ds.HighBit, ds.PixelRepresentation = 12, 11, 0
+        ds.RescaleIntercept, ds.RescaleSlope = -1024, 1
+        ds.PixelData = (uh(k) + 1024).astype('<u2').tobytes()
+        if nom == 'd':
+            ds.compress(RLELossless, encoding_plugin='pydicom')
+            ecrire(ds, f'{nom}_{k}.dcm')
+        else:
+            ecrire(ds, f'{nom}_{k}.dcm')
+            r = gdcm.ImageReader(); r.SetFileName(str(ICI / f'{nom}_{k}.dcm')); assert r.Read()
+            c = gdcm.ImageChangeTransferSyntax()
+            c.SetTransferSyntax(gdcm.TransferSyntax(gdcm.TransferSyntax.JPEGLosslessProcess14_1))
+            c.SetInput(r.GetImage()); assert c.Change()
+            w = gdcm.ImageWriter(); w.SetFileName(str(ICI / f'{nom}_{k}.dcm')); w.SetFile(r.GetFile()); w.SetImage(c.GetOutput()); assert w.Write()
 
 (ICI / 'pas_dicom.txt').write_text('ceci n’est pas un DICOM\n')
 print('ok')

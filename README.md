@@ -2,8 +2,10 @@
 
 Site pédagogique pour apprendre à lire le scanner thoracique des **pneumopathies interstitielles diffuses (PID) de médecine interne**, destiné aux internes de médecine interne.
 
-- **Cas** : séries complètes publiques à faire défiler, avec leur description et leur source.
-- **Mon scanner** : ouverture locale d’un DICOM ou d’images JPEG/PNG, et comparaison de deux examens avec défilement synchronisé. **Les images ne quittent jamais l’appareil.**
+- **Atlas** : de vrais scanners complets (bases ouvertes Zenodo et TCIA) à faire défiler, fenêtres poumon et médiastin, sémiologie reliée aux coupes.
+- **Fiches** : lésions élémentaires, patterns de PID, orientation selon la connectivite, avec références.
+- **Mon scanner** : ouverture locale d’un DICOM ou d’images JPEG/PNG, comparaison de deux examens avec défilement synchronisé. **Les images ne quittent jamais l’appareil.**
+- **Étendue** : scores de Goh, Warrick et Kazerooni ; densitométrie automatique (% de zones de haute atténuation, masque pulmonaire affiché) sur DICOM.
 
 > Outil pédagogique : ce n’est pas une aide au diagnostic.
 
@@ -18,16 +20,21 @@ Site statique sans étape de compilation (HTML, CSS, JavaScript), publié par Gi
 
 ## Lecteur DICOM
 
-- Formats acceptés : DICOM non compressé little endian (implicit / explicit VR), 8 ou 16 bits, monochrome, une image par fichier.
-- Les formats compressés, couleur ou multi-images sont **refusés avec un message explicite** plutôt qu’affichés de façon douteuse.
+- Formats acceptés : DICOM non compressé little endian, JPEG Lossless et RLE Lossless ; 8 ou 16 bits, monochrome, une image par fichier.
+- JPEG avec perte, JPEG 2000, couleur et multi-images sont **refusés avec un message explicite** plutôt qu’affichés de façon douteuse.
+- Décodage vérifié identique à pydicom sur 104 coupes réelles compressées (27 millions de pixels, aucune différence).
 - Coupes triées selon leur position réelle (Image Position / Orientation Patient), de l’apex vers les bases ; alertes en cas d’espacement irrégulier ou de doublons.
 - Valeurs converties en UH (Rescale Slope / Intercept) ; l’identité du patient n’est jamais affichée.
 - Tests sur des fichiers générés par une bibliothèque indépendante (pydicom) : `tests/fixtures/generer.py`.
 
+## Scores et densitométrie
+
+Chaque score applique la définition de l’article original (Goh 2008, Warrick 1991, Kazerooni 1997, HAA selon MESA-Lung 2009) ; les calculs sont couverts par des tests (`tests/scores.test.js`, `tests/densitometrie.test.js`). La densitométrie repose sur une segmentation par seuillage dont le masque est affiché : il doit toujours être vérifié.
+
 ## Ajouter un cas
 
-Voir [`data/cas/LISEZMOI.md`](data/cas/LISEZMOI.md).
+Voir [`data/cas/LISEZMOI.md`](data/cas/LISEZMOI.md) et `outils/creer_cas.py`.
 
 ## Licence
 
-Contenu et code sous licence [CC BY-NC-SA 4.0](LICENSE.md). Bibliothèque incluse : [dicomParser](https://github.com/cornerstonejs/dicomParser) (MIT).
+Contenu et code sous licence [CC BY-NC-SA 4.0](LICENSE.md). Bibliothèques incluses : [dicomParser](https://github.com/cornerstonejs/dicomParser) et [JPEGLosslessDecoderJS](https://github.com/rii-mango/JPEGLosslessDecoderJS) (MIT). Images : licence de leur source, indiquée sur chaque cas.

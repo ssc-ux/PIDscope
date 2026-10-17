@@ -1,4 +1,5 @@
-// Visualiseur de coupes : défilement (molette, glisser, clavier, curseur), zoom, déplacement, fenêtrage.
+// Visualiseur de coupes : défilement (molette, glisser, clavier, curseur), zoom, déplacement, fenêtrage,
+// calque optionnel (masque pulmonaire et zones de haute atténuation).
 
 export const FENETRES = {
   poumon: { nom: 'Poumon', largeur: 1500, centre: -600 },
@@ -6,6 +7,8 @@ export const FENETRES = {
 };
 
 const limiter = (v, min, max) => Math.min(max, Math.max(min, v));
+const COULEUR_POUMON = [94, 214, 160];
+const COULEUR_HAA = [255, 138, 61];
 
 export class Visualiseur {
   constructor(conteneur, { surChangement = () => {} } = {}) {
@@ -14,6 +17,8 @@ export class Visualiseur {
     this.index = 0;
     this.fenetre = { ...FENETRES.poumon };
     this.vue = { zoom: 1, dx: 0, dy: 0 };
+    this.calque = null; // { largeur, hauteur, masques: Uint8Array[] }
+    this.calqueVisible = false;
 
     conteneur.classList.add('visualiseur');
     conteneur.innerHTML = `
@@ -21,18 +26,17 @@ export class Visualiseur {
         <canvas></canvas>
         <div class="vis-info vis-haut"></div>
         <div class="vis-info vis-bas"></div>
+        <div class="vis-outils">
+          ${Object.entries(FENETRES).map(([k, f]) => `<button type="button" data-fenetre="${k}">${f.nom}</button>`).join('')}
+          <button type="button" class="vis-calque" hidden aria-pressed="false">Masque</button>
+          <button type="button" class="vis-reinit" title="Réinitialiser (double-clic)">⟲</button>
+        </div>
         <div class="vis-vide">Aucune série chargée</div>
       </div>
       <div class="vis-commandes">
         <button type="button" class="vis-prec" aria-label="Coupe précédente">▲</button>
         <input type="range" min="0" max="0" value="0" aria-label="Numéro de coupe">
         <button type="button" class="vis-suiv" aria-label="Coupe suivante">▼</button>
-      </div>
-      <div class="vis-outils">
-        <span class="vis-fenetres">
-          ${Object.entries(FENETRES).map(([k, f]) => `<button type="button" data-fenetre="${k}">${f.nom}</button>`).join('')}
-        </span>
-        <button type="button" class="vis-reinit">Réinitialiser</button>
       </div>`;
     this.zone = conteneur.querySelector('.vis-zone');
     this.canvas = conteneur.querySelector('canvas');
@@ -41,33 +45,71 @@ export class Visualiseur {
     this.infoBas = conteneur.querySelector('.vis-bas');
     this.vide = conteneur.querySelector('.vis-vide');
     this.curseur = conteneur.querySelector('input[type=range]');
-    this.boutonsFenetre = conteneur.querySelector('.vis-fenetres');
+    this.outils = conteneur.querySelector('.vis-outils');
+    this.boutonCalque = conteneur.querySelector('.vis-calque');
     this.horsEcran = document.createElement('canvas');
-    this.image = null; // dernière coupe affichée
+    this.image = null;
 
     this.curseur.addEventListener('input', () => this.allerA(+this.curseur.value));
     conteneur.querySelector('.vis-prec').addEventListener('click', () => this.allerA(this.index - 1));
     conteneur.querySelector('.vis-suiv').addEventListener('click', () => this.allerA(this.index + 1));
     conteneur.querySelector('.vis-reinit').addEventListener('click', () => this.reinitialiser());
-    this.boutonsFenetre.addEventListener('click', (e) => {
+    this.boutonCalque.addEventListener('click', () => this.afficherCalque(!this.calqueVisible));
+    this.outils.addEventListener('click', (e) => {
       const k = e.target.dataset?.fenetre;
-      if (k) this.definirFenetre(FENETRES[k]);
+      if (k) this.choisirFenetre(k);
     });
+    // Les boutons ne doivent pas déclencher le défilement de l'image.
+    this.outils.addEventListener('pointerdown', (e) => e.stopPropagation());
+    this.outils.addEventListener('dblclick', (e) => e.stopPropagation());
     this.brancherInteractions();
     new ResizeObserver(() => this.dessiner()).observe(this.zone);
   }
 
-  definirPile(pile) {
+  definirPile(pile, { index } = {}) {
     this.pile = pile;
-    this.cacheImage = null;
     this.image = null;
+    this.cacheImage = null;
+    this.calque = null;
+    this.calqueVisible = false;
+    this.boutonCalque.hidden = true;
     this.curseur.max = Math.max(0, pile.nombre - 1);
-    this.boutonsFenetre.hidden = !pile.calibre;
+    // Boutons de fenêtre : fenêtrage réel (UH) ou variantes pré-calculées (images publiées).
+    const fenetrable = pile.calibre || pile.variantes?.length > 1;
+    this.outils.querySelectorAll('[data-fenetre]').forEach((b) => { b.hidden = !fenetrable || (!pile.calibre && !pile.variantes.includes(b.dataset.fenetre)); });
     this.fenetre = { ...FENETRES.poumon };
+    this.marquerFenetre(pile.calibre || pile.variantes ? 'poumon' : null);
     this.vue = { zoom: 1, dx: 0, dy: 0 };
     this.vide.hidden = true;
     this.index = -1;
-    this.allerA(Math.floor(pile.nombre / 2), { silencieux: true });
+    this.allerA(index ?? Math.floor(pile.nombre / 2), { silencieux: true });
+  }
+
+  definirCalque(calque) {
+    this.calque = calque;
+    this.boutonCalque.hidden = !calque;
+    this.afficherCalque(!!calque);
+  }
+
+  afficherCalque(oui) {
+    this.calqueVisible = oui && !!this.calque;
+    this.boutonCalque.setAttribute('aria-pressed', String(this.calqueVisible));
+    this.cacheImage = null;
+    this.dessiner();
+  }
+
+  marquerFenetre(k) {
+    this.outils.querySelectorAll('[data-fenetre]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.fenetre === k)));
+  }
+
+  choisirFenetre(k) {
+    if (!this.pile) return;
+    this.marquerFenetre(k);
+    if (this.pile.calibre) this.definirFenetre(FENETRES[k]);
+    else if (this.pile.variantes?.includes(k)) {
+      this.pile.choisirVariante(k);
+      this.charger();
+    }
   }
 
   allerA(i, { silencieux = false } = {}) {
@@ -83,9 +125,10 @@ export class Visualiseur {
 
   async charger() {
     const i = this.index;
+    const pile = this.pile;
     try {
-      const c = await this.pile.coupe(i);
-      if (i !== this.index) return; // l'utilisateur a déjà défilé plus loin
+      const c = await pile.coupe(i);
+      if (i !== this.index || pile !== this.pile) return; // l'utilisateur a déjà défilé plus loin
       this.image = c;
       this.cacheImage = null;
       this.erreur = null;
@@ -96,9 +139,9 @@ export class Visualiseur {
     }
     this.dessiner();
     // Précharge les voisines pour un défilement fluide.
-    for (const d of [1, -1, 2, -2]) {
+    for (const d of [1, -1, 2, -2, 3]) {
       const j = i + d;
-      if (j >= 0 && j < this.pile.nombre) this.pile.coupe(j).catch(() => {});
+      if (j >= 0 && j < pile.nombre) pile.coupe(j).catch(() => {});
     }
   }
 
@@ -110,34 +153,55 @@ export class Visualiseur {
 
   reinitialiser() {
     this.vue = { zoom: 1, dx: 0, dy: 0 };
-    if (this.pile?.calibre) this.fenetre = { ...FENETRES.poumon };
+    if (this.pile?.calibre) { this.fenetre = { ...FENETRES.poumon }; this.marquerFenetre('poumon'); }
     this.cacheImage = null;
     this.dessiner();
   }
 
-  // Convertit la coupe courante en image affichable (fenêtrage appliqué pour les données en UH).
+  // Convertit la coupe courante en image affichable (fenêtrage pour les UH, calque éventuel).
   imageAffichable() {
     const c = this.image;
-    if (c.type === 'image') return c.image;
+    const masque = this.calqueVisible && this.calque?.masques[this.index];
+    if (c.type === 'image' && !masque) return c.image;
     if (this.cacheImage) return this.cacheImage;
-    const { largeur: L, centre: C } = this.fenetre;
-    const bas = C - L / 2;
-    const lut = new Uint8ClampedArray(65536);
-    for (let v = -32768; v < 32768; v++) {
-      let g = ((v - bas) / L) * 255;
-      if (c.inverse) g = 255 - g;
-      lut[v + 32768] = g;
-    }
     this.horsEcran.width = c.largeur;
     this.horsEcran.height = c.hauteur;
-    const hctx = this.horsEcran.getContext('2d');
-    const img = hctx.createImageData(c.largeur, c.hauteur);
-    const px = img.data;
-    const d = c.donnees;
-    for (let i = 0, j = 0; i < d.length; i++, j += 4) {
-      const g = lut[d[i] + 32768];
-      px[j] = px[j + 1] = px[j + 2] = g;
-      px[j + 3] = 255;
+    const hctx = this.horsEcran.getContext('2d', { willReadFrequently: true });
+    let img;
+    if (c.type === 'uh') {
+      const { largeur: L, centre: C } = this.fenetre;
+      const bas = C - L / 2;
+      const lut = new Uint8ClampedArray(65536);
+      for (let v = -32768; v < 32768; v++) {
+        const g = ((v - bas) / L) * 255;
+        lut[v + 32768] = c.inverse ? 255 - g : g;
+      }
+      img = hctx.createImageData(c.largeur, c.hauteur);
+      const px = img.data;
+      const d = c.donnees;
+      for (let i = 0, j = 0; i < d.length; i++, j += 4) {
+        px[j] = px[j + 1] = px[j + 2] = lut[d[i] + 32768];
+        px[j + 3] = 255;
+      }
+    } else {
+      hctx.drawImage(c.image, 0, 0);
+      img = hctx.getImageData(0, 0, c.largeur, c.hauteur);
+    }
+    if (masque) {
+      // Le masque est à demi-résolution : un pixel du masque couvre 2×2 pixels de l'image.
+      const { largeur: mw } = this.calque;
+      const px = img.data;
+      for (let y = 0; y < c.hauteur; y++)
+        for (let x = 0; x < c.largeur; x++) {
+          const m = masque[(y >> 1) * mw + (x >> 1)];
+          if (!m) continue;
+          const [r, g, b] = m === 2 ? COULEUR_HAA : COULEUR_POUMON;
+          const a = m === 2 ? 0.55 : 0.18;
+          const j = (y * c.largeur + x) * 4;
+          px[j] = px[j] * (1 - a) + r * a;
+          px[j + 1] = px[j + 1] * (1 - a) + g * a;
+          px[j + 2] = px[j + 2] * (1 - a) + b * a;
+        }
     }
     hctx.putImageData(img, 0, 0);
     return (this.cacheImage = this.horsEcran);
@@ -244,6 +308,7 @@ export class Visualiseur {
         const pxParCoupe = limiter(z.clientHeight / this.pile.nombre, 2, 12);
         this.allerA(geste.index + dy / pxParCoupe);
       } else if (geste.type === 'fenetre') {
+        this.marquerFenetre(null);
         this.definirFenetre({ largeur: geste.fenetre.largeur + dx * 4, centre: geste.fenetre.centre + dy * 2 });
       } else if (geste.type === 'deplacer') {
         this.vue.dx = geste.dx + dx;

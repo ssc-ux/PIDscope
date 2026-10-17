@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cas · PIDscope</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/entete.js"></script>
+  <script type="module" src="js/voir.js"></script>
+</head>
+<body class="app" data-page="index.html">
+  <header class="entete"></header>
+  <div class="app-corps">
+    <div class="app-image">
+      <div class="ecrans"><div class="ecran"><div class="vis" id="vis"></div></div></div>
+      <p class="aide"><span class="aide-souris">Molette, glisser ou ↑↓ : coupes · Ctrl + molette : zoom · Maj + glisser : déplacer · double-clic : réinitialiser</span><span class="aide-tactile">Glisser : coupes · pincer : zoom · double-tap : réinitialiser</span></p>
+    </div>
+    <aside class="app-panneau">
+      <div class="onglets" id="onglets-cas">
+        <button type="button" data-vue="lecture" aria-pressed="true">Lecture</button>
+        <button type="button" data-vue="etendue">Étendue</button>
+      </div>
+      <div id="lecture"></div>
+      <div id="etendue" hidden></div>
+      <p class="etat erreur" id="erreur" hidden></p>
+    </aside>
+  </div>
+</body>
+</html>

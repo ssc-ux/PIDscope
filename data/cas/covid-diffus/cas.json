@@ -1,0 +1,33 @@
+{
+  "id": "covid-diffus",
+  "titre": "Verre dépoli diffus et crazy paving",
+  "description": "Atteinte bilatérale diffuse : verre dépoli, réticulations intralobulaires surajoutées et condensations déclives.",
+  "categorie": "Lésions élémentaires",
+  "maladies": [
+    "Pneumonie COVID-19 (non PID)"
+  ],
+  "patterns": [
+    "Verre dépoli",
+    "Crazy paving",
+    "Condensation"
+  ],
+  "statut": "brouillon",
+  "source": {
+    "nom": "MIDRC-RICORD-1A (The Cancer Imaging Archive)",
+    "url": "https://doi.org/10.7937/VTW4-X588",
+    "auteur": "Tsai EB et al., RSNA International COVID-19 Open Radiology Database (RICORD), Radiology 2021;299:E204-E213",
+    "licence": "CC BY-NC 4.0",
+    "modifications": "Série axiale 1,25 mm exportée en WebP, fenêtres poumon (L -600 / W 1500) et médiastin (L 40 / W 350), recadrée sur le thorax."
+  },
+  "serie": {
+    "nombre": 121,
+    "chiffres": 4,
+    "espacement_mm": 1.25,
+    "fenetres": {
+      "poumon": "poumon/{n}.webp",
+      "mediastin": "mediastin/{n}.webp"
+    },
+    "coupe_initiale": 60
+  },
+  "texte": "## Pourquoi ce cas\nPneumonie COVID-19 confirmée (base RICORD). Ce n'est pas une PID de connectivite, mais les **lésions élémentaires** sont les mêmes que dans les PID aiguës de médecine interne : savoir les nommer est indispensable.\n\n## Sémiologie\n- **Verre dépoli** : augmentation de densité qui laisse voir les vaisseaux et les parois bronchiques, bilatérale et diffuse [coupe 60].\n- **Crazy paving** : réticulations fines intralobulaires et épaississement septal superposés au verre dépoli, aspect en « pavage irrégulier » [coupe 60].\n- **Condensations** : densité effaçant les vaisseaux, avec bronchogramme aérique, prédominant dans les régions postérieures déclives [coupe 87].\n- Pneumomédiastin antérieur (air autour du cœur et des gros vaisseaux) [coupe 60].\n\n## Message pour la médecine interne\nUn tableau de verre dépoli et de condensations diffus, d'installation rapide, impose de discuter : infection, œdème, hémorragie intra-alvéolaire, toxicité médicamenteuse, et **PID rapidement progressive** (dermatomyosite anti-MDA5, poussée aiguë de PID).\n\n## Exercice\nOnglet **Étendue** : appliquez le score de Goh sur les 5 niveaux. L'étendue dépasse nettement 30 %."
+}

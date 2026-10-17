@@ -1,1 +1,43 @@
-[]
+[
+  {
+    "id": "normal-hrct",
+    "titre": "Scanner thoracique normal en haute résolution",
+    "description": "Le poumon normal coupe par coupe : repères anatomiques et niveaux du score de Goh.",
+    "categorie": "Bases",
+    "maladies": [],
+    "patterns": [
+      "Normal"
+    ],
+    "statut": "brouillon"
+  },
+  {
+    "id": "covid-diffus",
+    "titre": "Verre dépoli diffus et crazy paving",
+    "description": "Atteinte bilatérale diffuse : verre dépoli, réticulations intralobulaires surajoutées et condensations déclives.",
+    "categorie": "Lésions élémentaires",
+    "maladies": [
+      "Pneumonie COVID-19 (non PID)"
+    ],
+    "patterns": [
+      "Verre dépoli",
+      "Crazy paving",
+      "Condensation"
+    ],
+    "statut": "brouillon"
+  },
+  {
+    "id": "covid-peripherique",
+    "titre": "Verre dépoli et condensations périphériques",
+    "description": "Distribution sous-pleurale et postéro-basale : savoir décrire la topographie des lésions.",
+    "categorie": "Lésions élémentaires",
+    "maladies": [
+      "Pneumonie COVID-19 (non PID)"
+    ],
+    "patterns": [
+      "Verre dépoli",
+      "Condensation",
+      "Distribution périphérique"
+    ],
+    "statut": "brouillon"
+  }
+]

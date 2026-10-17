@@ -1,0 +1,33 @@
+{
+  "id": "covid-peripherique",
+  "titre": "Verre dépoli et condensations périphériques",
+  "description": "Distribution sous-pleurale et postéro-basale : savoir décrire la topographie des lésions.",
+  "categorie": "Lésions élémentaires",
+  "maladies": [
+    "Pneumonie COVID-19 (non PID)"
+  ],
+  "patterns": [
+    "Verre dépoli",
+    "Condensation",
+    "Distribution périphérique"
+  ],
+  "statut": "brouillon",
+  "source": {
+    "nom": "MIDRC-RICORD-1A (The Cancer Imaging Archive)",
+    "url": "https://doi.org/10.7937/VTW4-X588",
+    "auteur": "Tsai EB et al., RSNA International COVID-19 Open Radiology Database (RICORD), Radiology 2021;299:E204-E213",
+    "licence": "CC BY-NC 4.0",
+    "modifications": "Série axiale 1,25 mm exportée en WebP, fenêtres poumon (L -600 / W 1500) et médiastin (L 40 / W 350), recadrée sur le thorax."
+  },
+  "serie": {
+    "nombre": 170,
+    "chiffres": 4,
+    "espacement_mm": 1.25,
+    "fenetres": {
+      "poumon": "poumon/{n}.webp",
+      "mediastin": "mediastin/{n}.webp"
+    },
+    "coupe_initiale": 105
+  },
+  "texte": "## Pourquoi ce cas\nPneumonie COVID-19 confirmée (base RICORD). Il sert à apprendre à décrire la **topographie** des lésions, étape clé pour reconnaître un pattern de PID.\n\n## Sémiologie\n- **Verre dépoli périphérique** sous-pleural, bilatéral, respectant en partie les régions centrales péri-hilaires [coupe 85].\n- **Condensations** postérieures et basales, bilatérales [coupe 105], plus étendues vers les bases [coupe 120].\n- Gradient apico-basal : lésions plus marquées aux bases qu'aux sommets [coupe 20].\n- Pneumomédiastin antérieur [coupe 105].\n\n## Message pour la médecine interne\nLa distribution **périphérique et basale** des condensations et du verre dépoli évoque un pattern de **pneumonie organisée (PO)**, fréquent au cours du syndrome des antisynthétases et des myopathies inflammatoires, souvent associé à une PINS (PINS + PO). Le contexte (ici infectieux) reste déterminant.\n\n## Exercice\nRepérez le gradient cranio-caudal en faisant défiler toute la série, puis cotez l'étendue (onglet **Étendue**)."
+}

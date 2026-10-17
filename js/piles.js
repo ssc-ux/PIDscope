@@ -39,7 +39,7 @@ export class PileDicom {
   coupe(i) {
     return this.cache.obtenir(i, async () => {
       const { entete: m, source } = this.serie.coupes[i];
-      const octets = await source.slice(m.pixelOffset, m.pixelOffset + m.pixelLongueur).arrayBuffer();
+      const octets = await source.slice(m.pixelOffset, m.pixelLongueur == null ? undefined : m.pixelOffset + m.pixelLongueur).arrayBuffer();
       return { type: 'uh', largeur: m.colonnes, hauteur: m.lignes, donnees: decoderPixels(m, octets), inverse: m.photometrie === 'MONOCHROME1' };
     });
   }
@@ -52,7 +52,7 @@ class PileImages {
     this.calibre = false;
     this.espacementPixel = null;
     this.espacementCoupes = null;
-    this.cache = new Cache(64);
+    this.cache = new Cache(128);
   }
   legende() { return ''; }
   coupe(i) {
@@ -72,12 +72,29 @@ export class PileFichiersImage extends PileImages {
   charger(f) { return createImageBitmap(f); }
 }
 
-// Série publiée sur le site (cas pédagogiques).
+// Série publiée sur le site (cas) : une liste d'URL par fenêtre pré-calculée (« poumon », « mediastin »).
 export class PileUrls extends PileImages {
-  constructor(urls, { espacementCoupes = null, mention = '' } = {}) {
-    super(urls);
+  constructor(urlsParFenetre, { espacementCoupes = null, espacementPixel = null } = {}) {
+    const variantes = Object.keys(urlsParFenetre);
+    super(urlsParFenetre[variantes[0]]);
+    this.urlsParFenetre = urlsParFenetre;
+    this.variantes = variantes;
+    this.variante = variantes[0];
     this.espacementCoupes = espacementCoupes;
-    this.mention = mention; // ex. fenêtre utilisée lors de l'export des images
+    this.espacementPixel = espacementPixel;
+  }
+  get mention() { return `Fenêtre ${this.variante === 'mediastin' ? 'médiastinale' : 'pulmonaire'}`; }
+  legende(i) { return this.espacementCoupes ? `${((i * this.espacementCoupes) / 10).toFixed(1)} cm sous la 1re coupe` : ''; }
+  choisirVariante(v) {
+    this.variante = v;
+    this.sources = this.urlsParFenetre[v];
+  }
+  coupe(i) {
+    const v = this.variante;
+    return this.cache.obtenir(`${v}:${i}`, async () => {
+      const image = await this.charger(this.urlsParFenetre[v][i]);
+      return { type: 'image', largeur: image.width, hauteur: image.height, image };
+    });
   }
   async charger(url) {
     const r = await fetch(url);
