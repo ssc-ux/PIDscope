@@ -14,6 +14,9 @@
   <meta name="twitter:card" content="summary">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%23000' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M18 11c-4 1-8 8-8 15 0 3 2 4 4 3l4-2zM22 11c4 1 8 8 8 15 0 3-2 4-4 3l-4-2z' fill='%23fff'/%3E%3Cpath d='M20 7v9' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icones/icone.svg">
+  <script type="module" src="js/pwa.js"></script>
   <script type="module" src="js/entete.js"></script>
   <script type="module" src="js/voir.js"></script>
 </head>
@@ -22,17 +25,17 @@
   <header class="entete"></header>
   <div class="app-corps" id="contenu" role="main">
     <div class="app-image">
-      <div class="ecrans"><div class="ecran"><div class="vis" id="vis"></div></div></div>
+      <div class="ecrans" role="region" aria-label="Visualiseur du scanner"><div class="ecran"><div class="vis" id="vis"></div></div></div>
       <p class="aide"><span class="aide-souris">Molette, glisser ou ↑↓ : coupes · Ctrl + molette : zoom · Maj + glisser : déplacer · double-clic : réinitialiser</span><span class="aide-tactile">Glisser : coupes · pincer : zoom · double-tap : réinitialiser</span></p>
     </div>
     <aside class="app-panneau">
-      <div class="onglets" id="onglets-cas">
+      <div class="onglets" id="onglets-cas" role="group" aria-label="Contenu du panneau">
         <button type="button" data-vue="lecture" aria-pressed="true">Lecture</button>
         <button type="button" data-vue="etendue">Étendue</button>
       </div>
       <div id="lecture"></div>
       <div id="etendue" hidden></div>
-      <p class="etat erreur" id="erreur" hidden></p>
+      <p class="etat erreur" id="erreur" role="alert" hidden></p>
     </aside>
   </div>
 </body>

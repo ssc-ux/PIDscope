@@ -23,9 +23,9 @@ export const NIVEAUX_GOH = [
 
 // pourcentages : 5 valeurs (0–100). cvf : CVF en % de la théorique, ou null.
 // < 10 % : atteinte minime → limitée ; > 30 % : atteinte sévère → étendue ;
-// 10–30 % : indéterminée → CVF ≥ 70 % limitée, < 70 % étendue.
+// 10–30 % (bornes incluses) : indéterminée → CVF ≥ 70 % limitée, < 70 % étendue (algorithme de Goh 2008).
 export function goh(pourcentages, cvf = null) {
-  if (pourcentages.length !== 5 || pourcentages.some((p) => !Number.isFinite(p) || p < 0 || p > 100))
+  if (!Array.isArray(pourcentages) || pourcentages.length !== 5 || pourcentages.some((p) => !Number.isFinite(p) || p < 0 || p > 100))
     throw new RangeError('Goh : 5 pourcentages entre 0 et 100 sont attendus.');
   const etendue = pourcentages.reduce((a, b) => a + b, 0) / 5;
   if (etendue < 10) return { etendue, scanner: 'minime', stade: 'limitée' };
@@ -49,7 +49,7 @@ export const CLASSES_SEGMENTS = ['Absent', '1 à 3 segments', '4 à 9 segments',
 
 // classes : pour chaque lésion, 0 (absente) à 3 (> 9 segments), dans l'ordre de LESIONS_WARRICK.
 export function warrick(classes) {
-  if (classes.length !== 5 || classes.some((c) => ![0, 1, 2, 3].includes(c)))
+  if (!Array.isArray(classes) || classes.length !== 5 || classes.some((c) => ![0, 1, 2, 3].includes(c)))
     throw new RangeError('Warrick : 5 classes entre 0 et 3 sont attendues.');
   const severite = classes.reduce((s, c, i) => s + (c > 0 ? LESIONS_WARRICK[i].points : 0), 0);
   const etendue = classes.reduce((s, c) => s + c, 0);
@@ -72,7 +72,7 @@ export const GRADES_FIBROSE = [
 // verreDepoli, fibrose : 5 grades (0–5), un par lobe. Retourne les moyennes (0–5) et les sommes (0–25).
 export function kazerooni(verreDepoli, fibrose) {
   for (const v of [verreDepoli, fibrose])
-    if (v.length !== 5 || v.some((g) => !Number.isInteger(g) || g < 0 || g > 5))
+    if (!Array.isArray(v) || v.length !== 5 || v.some((g) => !Number.isInteger(g) || g < 0 || g > 5))
       throw new RangeError('Kazerooni : 5 grades entiers entre 0 et 5 sont attendus.');
   const somme = (v) => v.reduce((a, b) => a + b, 0);
   return {
