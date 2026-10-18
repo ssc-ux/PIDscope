@@ -21,7 +21,8 @@ const PINCEAUX = [
 ];
 
 const options = (libelles) => libelles.map((l, i) => `<option value="${i}">${l}</option>`).join('');
-const fmt = (v, d = 1) => v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+// Valeur absente (null : aucun voxel pulmonaire, volume non calculable) ou non finie : tiret plutôt qu'une exception.
+const fmt = (v, d = 1) => (Number.isFinite(v) ? v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—');
 
 // conteneur : élément du DOM ; visualiseur() : visualiseur actif ; reperesGoh : coupes proposées (numérotées à partir de 1)
 export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null } = {}) {
@@ -155,7 +156,7 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
     $('[data-q-approx]').hidden = !ok || !!vis.pile.calibre;
     if (analyse && analyse.pile !== vis?.pile) { analyse = null; $('[data-q-resultats]').hidden = true; }
   };
-  const pct = (v) => `${fmt(v)} %`;
+  const pct = (v) => (Number.isFinite(v) ? `${fmt(v)} %` : '—');
   const majNiveaux = () => {
     if (!analyse) return;
     const lignes = NIVEAUX_GOH.map((nom, i) => {
@@ -209,7 +210,8 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
           // Sans carte graphique, une coupe tous les 5 mm (plus les niveaux de Goh) pour garder un temps raisonnable.
           const pas = Math.max(1, Math.round(5 / (geometrie.espacementCoupes || 5)));
           indices = [...new Set([...indices.filter((k) => k % pas === 0), ...niveaux.filter((k) => k != null)])].sort((a, b) => a - b);
-          geometrie.espacementCoupes = (geometrie.espacementCoupes || 1) * pas; // échantillonnage : volume non calculé
+          // Échantillonnage (plus les niveaux de Goh, irrégulièrement espacés) : volumes non calculés.
+          if (pas > 1) geometrie.espacementCoupes = null;
         }
         const sous = { nombre: indices.length, coupe: (i) => source.coupe(indices[i]) };
         etat.textContent = `Segmentation lungmask (${modele.fournisseur === 'webgpu' ? 'carte graphique, toutes les coupes' : `processeur, ${indices.length} coupes`})…`;

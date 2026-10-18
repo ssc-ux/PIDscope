@@ -192,10 +192,10 @@ export function classerCoupe(hu, largeur, hauteur, poumon, pixelMm, p = PARAMETR
   return classes;
 }
 
-// Pourcentages de chaque lésion dans le poumon d'une ou plusieurs coupes.
+// Pourcentages de chaque lésion dans le poumon d'une ou plusieurs coupes (coupes absentes, null, ignorées).
 export function proportions(listeClasses) {
   const n = [0, 0, 0, 0, 0];
-  for (const classes of listeClasses) for (const c of classes) n[c]++;
+  for (const classes of listeClasses) if (classes) for (let i = 0; i < classes.length; i++) n[classes[i]]++;
   const poumon = n[1] + n[2] + n[3] + n[4];
   const pct = (k) => (poumon ? (100 * n[k]) / poumon : 0);
   return {
