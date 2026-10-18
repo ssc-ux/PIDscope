@@ -1,0 +1,19 @@
+{
+  "name": "PIDscope — lire le scanner des PID",
+  "short_name": "PIDscope",
+  "description": "Apprendre à lire le scanner thoracique des pneumopathies interstitielles diffuses, même hors ligne.",
+  "lang": "fr",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["education", "medical"],
+  "icons": [
+    { "src": "icones/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icones/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
