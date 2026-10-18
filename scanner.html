@@ -4,14 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mon scanner · PIDscope</title>
+  <meta name="description" content="Ouvrir un scanner DICOM ou des images dans le navigateur, comparer deux examens et mesurer l’étendue des PID. Aucune image n’est envoyée.">
+  <meta name="theme-color" content="#000000">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PIDscope">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Mon scanner · PIDscope">
+  <meta property="og:description" content="Ouvrir un scanner DICOM ou des images dans le navigateur, comparer deux examens et mesurer l’étendue des PID. Aucune image n’est envoyée.">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%23000' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M18 11c-4 1-8 8-8 15 0 3 2 4 4 3l4-2zM22 11c4 1 8 8 8 15 0 3-2 4-4 3l-4-2z' fill='%23fff'/%3E%3Cpath d='M20 7v9' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
   <script src="vendor/dicomParser.min.js"></script>
   <script type="module" src="js/entete.js"></script>
   <script type="module" src="js/scanner.js"></script>
 </head>
 <body class="app" data-page="scanner.html">
+  <a class="lien-evitement" href="#contenu">Aller au contenu</a>
   <header class="entete"></header>
-  <div class="app-corps">
+  <div class="app-corps" id="contenu" role="main">
     <div class="app-image">
       <div class="ecrans" id="ecrans">
         <section class="ecran"><div class="ecran-titre"></div><div class="vis"></div></section>

@@ -4,13 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cas · PIDscope</title>
+  <meta name="description" content="Cas de PID à faire défiler coupe par coupe, avec la sémiologie expliquée et le calcul de l’étendue.">
+  <meta name="theme-color" content="#000000">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PIDscope">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Cas · PIDscope">
+  <meta property="og:description" content="Cas de PID à faire défiler coupe par coupe, avec la sémiologie expliquée et le calcul de l’étendue.">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%23000' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M18 11c-4 1-8 8-8 15 0 3 2 4 4 3l4-2zM22 11c4 1 8 8 8 15 0 3-2 4-4 3l-4-2z' fill='%23fff'/%3E%3Cpath d='M20 7v9' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/entete.js"></script>
   <script type="module" src="js/voir.js"></script>
 </head>
 <body class="app" data-page="index.html">
+  <a class="lien-evitement" href="#contenu">Aller au contenu</a>
   <header class="entete"></header>
-  <div class="app-corps">
+  <div class="app-corps" id="contenu" role="main">
     <div class="app-image">
       <div class="ecrans"><div class="ecran"><div class="vis" id="vis"></div></div></div>
       <p class="aide"><span class="aide-souris">Molette, glisser ou ↑↓ : coupes · Ctrl + molette : zoom · Maj + glisser : déplacer · double-clic : réinitialiser</span><span class="aide-tactile">Glisser : coupes · pincer : zoom · double-tap : réinitialiser</span></p>

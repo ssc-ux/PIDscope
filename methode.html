@@ -4,12 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Méthode d’analyse · PIDscope</title>
+  <meta name="description" content="Méthode d’analyse de PIDscope : lecture DICOM, segmentation des poumons (lungmask), densitométrie, carte des lésions, score de Goh, validation et limites.">
+  <meta name="theme-color" content="#000000">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PIDscope">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Méthode d’analyse · PIDscope">
+  <meta property="og:description" content="Méthode d’analyse de PIDscope : lecture DICOM, segmentation des poumons (lungmask), densitométrie, carte des lésions, score de Goh, validation et limites.">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%23000' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M18 11c-4 1-8 8-8 15 0 3 2 4 4 3l4-2zM22 11c4 1 8 8 8 15 0 3-2 4-4 3l-4-2z' fill='%23fff'/%3E%3Cpath d='M20 7v9' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/entete.js"></script>
 </head>
 <body data-page="methode.html">
+  <a class="lien-evitement" href="#contenu">Aller au contenu</a>
   <header class="entete"></header>
-  <main>
+  <main id="contenu">
     <article class="prose">
       <h1>Méthode d’analyse</h1>
       <p>Comment PIDscope lit un scanner, segmente les poumons, mesure l’atteinte et ce que vaut chaque résultat. Tout s’exécute dans le navigateur : aucune image n’est envoyée.</p>
@@ -29,11 +39,13 @@
 
       <h2>3. Mesures de densité publiées <span class="badge relu">Validé</span></h2>
       <table>
-        <tr><th>Mesure</th><th>Définition</th><th>Source</th></tr>
+        <thead><tr><th scope="col">Mesure</th><th scope="col">Définition</th><th scope="col">Source</th></tr></thead>
+        <tbody>
         <tr><td>HAA</td><td>% du poumon entre -600 et -250 UH (verre dépoli et réticulations)</td><td>MESA : Lederer 2009 ; valeur pronostique : Podolanczuk 2016</td></tr>
         <tr><td>Densité moyenne (MLA)</td><td>Moyenne des voxels pulmonaires de -1024 à -200 UH</td><td>Best 2003 (FPI) ; Camiciottoli 2007 (sclérodermie)</td></tr>
         <tr><td>Asymétrie, kurtosis</td><td>Forme de l’histogramme sur la même plage ; kurtosis en excès (loi normale = 0). La fibrose aplatit l’histogramme et le déplace vers les densités élevées.</td><td>Best 2003 ; Camiciottoli 2007</td></tr>
         <tr><td>Bandes de densité</td><td>Emphysème -1050/-950, aéré -950/-750, infiltré -750/-400, collabé -400/0, vaisseaux ≥ 0 UH (descriptives, sans validation dans les PID)</td><td>3D Slicer Lung CT Analyzer (Apache 2.0)</td></tr>
+        </tbody>
       </table>
       <p>Ces indices sont corrélés aux EFR mais n’ont pas de seuil diagnostique : ils servent à comparer deux examens comparables d’un même patient (même filtre, même épaisseur, inspiration).</p>
 
@@ -50,21 +62,25 @@
       <h3>Validation externe sur 39 PID de sclérodermie (SICCS)</h3>
       <p>Comparaison de la carte PIDscope à la segmentation de deux experts, cellule par cellule, dans le poumon délimité par les experts (30 millions de cellules ; 39 patients de la cohorte SICCS, scanners de pratique courante ; étendue des experts : fibrose établie 0 à 29 %, fibrose fine / verre dépoli 0 à 61 % ; patient 33 exclu : tout son poumon est étiqueté lésion, sans parenchyme normal, ce qui rend son étendue inexploitable) :</p>
       <table>
-        <tr><th>Mesure</th><th>Corrélation par patient (Spearman)</th><th>Écart moyen</th><th>Recouvrement (Dice)</th></tr>
+        <thead><tr><th scope="col">Mesure</th><th scope="col">Corrélation par patient (Spearman)</th><th scope="col">Écart moyen</th><th scope="col">Recouvrement (Dice)</th></tr></thead>
+        <tbody>
         <tr><td>Lésions totales (verre dépoli + fibrose)</td><td>ρ = 0,54 (p &lt; 0,001)</td><td>+6,6 points (surestimation)</td><td>0,51</td></tr>
         <tr><td>Verre dépoli vs fibrose fine / verre dépoli</td><td>ρ = 0,64 (p &lt; 0,001)</td><td>+4,5 points</td><td>0,43</td></tr>
         <tr><td>Fibrose vs fibrose établie</td><td>ρ = 0,21 (non significatif)</td><td>+2,1 points</td><td>0,20</td></tr>
         <tr><td>HAA vs lésions totales des experts</td><td>ρ = 0,43 (p = 0,006)</td><td>—</td><td>—</td></tr>
         <tr><td>Kurtosis vs lésions totales des experts</td><td>ρ = -0,37 (p = 0,02)</td><td>—</td><td>—</td></tr>
+        </tbody>
       </table>
       <p><strong>Conclusion</strong> : la carte estime correctement l’ordre de grandeur de l’atteinte totale et du verre dépoli, mais <strong>ne distingue pas de façon fiable la fibrose établie du verre dépoli</strong> (la fibrose établie des experts est classée normale dans 39 % des cas et verre dépoli dans 35 %). La segmentation pulmonaire par seuillage recouvre celle des experts avec un Dice médian de 0,965 (0,920 à 0,983).</p>
       <h3>Tentative de recalibrage (apprentissage / test)</h3>
       <p>Les patients ont été répartis en deux moitiés de même étendue d’atteinte (20 d’apprentissage, 19 de test ; environ 0,6 million de cellules tirées au sort). Sur la moitié d’apprentissage, 13 descripteurs locaux ont été calculés : densités, structures fines à trois contrastes, écart-type, kystes aériens, distance à la plèvre, hauteur dans le thorax. Avec ces descripteurs, on a ensuite testé une grille de 840 combinaisons de seuils, des arbres de décision et un modèle de « boosting » servant de plafond.</p>
       <table>
-        <tr><th>Moitié test (19 patients)</th><th>Lésions totales : ρ / écart absolu / Dice</th><th>Fibrose : ρ / Dice</th><th>Verre dépoli : ρ / Dice</th></tr>
+        <thead><tr><th scope="col">Moitié test (19 patients)</th><th scope="col">Lésions totales : ρ / écart absolu / Dice</th><th scope="col">Fibrose : ρ / Dice</th><th scope="col">Verre dépoli : ρ / Dice</th></tr></thead>
+        <tbody>
         <tr><td>Réglages actuels</td><td>0,58 / 10,8 points / 0,52</td><td>0,34 / 0,19</td><td>0,60 / 0,41</td></tr>
         <tr><td>Meilleurs seuils de la grille</td><td>0,55 / 10,3 points / 0,47</td><td>0,38 / 0,16</td><td>0,55 / 0,37</td></tr>
         <tr><td>Boosting, 13 descripteurs (plafond)</td><td>0,59 / 10,9 points / 0,48</td><td>0,43 / 0,19</td><td>0,58 / 0,31</td></tr>
+        </tbody>
       </table>
       <p><strong>Conclusion</strong> : aucun réglage ne fait mieux de façon nette que les réglages actuels, qui sont <strong>conservés</strong>. Même le modèle le plus souple ne sépare pas la fibrose établie du verre dépoli (Dice ≤ 0,19). Avec des descripteurs de densité et de texture locale, la distinction semble hors de portée : elle exigerait un réseau entraîné sur des milliers de coupes annotées, comme CALIPER ou les logiciels commerciaux.</p>
 
@@ -95,7 +111,8 @@
 
       <h2>9. Outils utilisés</h2>
       <table>
-        <tr><th>Outil</th><th>Rôle</th><th>Licence</th></tr>
+        <thead><tr><th scope="col">Outil</th><th scope="col">Rôle</th><th scope="col">Licence</th></tr></thead>
+        <tbody>
         <tr><td>dicomParser (Cornerstone)</td><td>Lecture des en-têtes DICOM</td><td>MIT</td></tr>
         <tr><td>JPEGLosslessDecoderJS</td><td>Décompression JPEG Lossless (corrigé pour le dernier pixel)</td><td>MIT</td></tr>
         <tr><td>lungmask R231 (Hofmanninger 2020)</td><td>Segmentation des poumons</td><td>Apache 2.0</td></tr>
@@ -103,6 +120,7 @@
         <tr><td>3D Slicer Lung CT Analyzer</td><td>Seuils des bandes de densité</td><td>Apache 2.0</td></tr>
         <tr><td>SICCS (Vahdani 2026)</td><td>40 séries complètes de PID de sclérodermie et segmentation d’experts : atlas et validation</td><td>CC0 1.0</td></tr>
         <tr><td>Code PIDscope</td><td>Visualiseur, densitométrie, carte, scores</td><td>CC BY-NC-SA 4.0</td></tr>
+        </tbody>
       </table>
     </article>
   </main>
