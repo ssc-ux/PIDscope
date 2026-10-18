@@ -4,8 +4,11 @@
 
 import { lireEntete, decoderPixels, construireSeries } from './dicom.js';
 
+// Cache LRU de promesses. `liberer(valeur)` est appelé sur chaque entrée évincée (fermeture des ImageBitmap :
+// leur mémoire, hors du tas JavaScript, n'est sinon rendue qu'au ramasse-miettes). La coupe affichée n'est jamais
+// évincée en pratique : le visualiseur la redemande à chaque changement et ne précharge que 5 voisines.
 class Cache {
-  constructor(taille) { this.taille = taille; this.m = new Map(); }
+  constructor(taille, liberer = null) { this.taille = taille; this.liberer = liberer; this.m = new Map(); }
   obtenir(cle, fabrique) {
     if (this.m.has(cle)) {
       const v = this.m.get(cle);
@@ -14,7 +17,11 @@ class Cache {
     }
     const v = fabrique();
     this.m.set(cle, v);
-    if (this.m.size > this.taille) this.m.delete(this.m.keys().next().value);
+    if (this.m.size > this.taille) {
+      const [ancienne, valeur] = this.m.entries().next().value;
+      this.m.delete(ancienne);
+      if (this.liberer) Promise.resolve(valeur).then(this.liberer, () => {});
+    }
     // En cas d'échec, ne pas garder la promesse rejetée en cache (sauf si elle a déjà été remplacée).
     Promise.resolve(v).catch(() => { if (this.m.get(cle) === v) this.m.delete(cle); });
     return v;
@@ -61,7 +68,7 @@ class PileImages {
     this.calibre = false;
     this.espacementPixel = null;
     this.espacementCoupes = null;
-    this.cache = new Cache(128);
+    this.cache = new Cache(128, (c) => c?.image?.close?.());
   }
   legende() { return ''; }
   coupe(i) {
@@ -126,13 +133,19 @@ export function pileUHDepuisFenetrePoumon(pile) {
     espacementCoupes: pile.espacementCoupes,
     async coupe(i) {
       const image = await pile.charger(urls[i]);
-      canvas.width = image.width;
-      canvas.height = image.height;
-      ctx.drawImage(image, 0, 0);
-      const px = ctx.getImageData(0, 0, image.width, image.height).data;
-      const donnees = new Int16Array(image.width * image.height);
+      const { width, height } = image;
+      let px;
+      try {
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(image, 0, 0);
+        px = ctx.getImageData(0, 0, width, height).data;
+      } finally {
+        image.close?.(); // bitmap local, jamais affiché : libéré tout de suite
+      }
+      const donnees = new Int16Array(width * height);
       for (let j = 0; j < donnees.length; j++) donnees[j] = Math.round((px[j * 4] / 255) * 1500 - 1350);
-      return { type: 'uh', largeur: image.width, hauteur: image.height, donnees };
+      return { type: 'uh', largeur: width, hauteur: height, donnees };
     },
   };
 }
