@@ -10,6 +10,36 @@ const limiter = (v, min, max) => Math.min(max, Math.max(min, v));
 // Palette par défaut d'un calque : valeur → [r, g, b, opacité].
 const PALETTE_DEFAUT = { 1: [94, 214, 160, 0.18], 2: [255, 138, 61, 0.55] };
 
+// Table de correspondance UH (Int16, décalées de 32768) → niveau de gris pour une fenêtre donnée.
+export function lutFenetre(largeur, centre, inverse = false) {
+  const bas = centre - largeur / 2;
+  const lut = new Uint8ClampedArray(65536);
+  for (let v = -32768; v < 32768; v++) {
+    const g = ((v - bas) / largeur) * 255;
+    lut[v + 32768] = inverse ? 255 - g : g;
+  }
+  return lut;
+}
+
+// Déplacement vertical d'un évènement « wheel » ramené en pixels (lignes : 16 px, pages : hauteurPage).
+export function deltaMolette({ deltaY, deltaMode }, hauteurPage = 800) {
+  return deltaMode === 1 ? deltaY * 16 : deltaMode === 2 ? deltaY * hauteurPage : deltaY;
+}
+
+// Action associée à une touche (null si la touche n'est pas gérée ou combinée à Ctrl/Alt/Méta,
+// pour laisser passer les raccourcis du navigateur comme Alt+← « page précédente »).
+const PAS_CLAVIER = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1, PageUp: -10, PageDown: 10 };
+export function actionClavier({ key, ctrlKey, altKey, metaKey }) {
+  if (ctrlKey || altKey || metaKey) return null;
+  if (PAS_CLAVIER[key]) return { type: 'pas', valeur: PAS_CLAVIER[key] };
+  if (key === 'Home') return { type: 'debut' };
+  if (key === 'End') return { type: 'fin' };
+  if (key === '+' || key === '=') return { type: 'zoom', facteur: 1.25 };
+  if (key === '-' || key === '_') return { type: 'zoom', facteur: 0.8 };
+  if (key === '0') return { type: 'reinit' };
+  return null;
+}
+
 export class Visualiseur {
   constructor(conteneur, { surChangement = () => {} } = {}) {
     this.surChangement = surChangement;
@@ -21,10 +51,18 @@ export class Visualiseur {
     this.calqueVisible = false;
     this.pinceau = null; // { valeur, rayonMm } : le glisser peint le calque au lieu de faire défiler
     this.surPeinture = () => {};
+    this.erreur = null;
+    this.indexImage = -1; // coupe réellement affichée (this.index peut être en cours de chargement)
+    this.jeton = 0; // numéro de la dernière demande de chargement : les réponses plus anciennes sont ignorées
+    this.trame = 0;
+    this.lut = null;
+    // Tous les écouteurs sont rattachés à ce signal : detruire() les retire d'un coup.
+    this.abandon = new AbortController();
+    const signal = this.abandon.signal;
 
     conteneur.classList.add('visualiseur');
     conteneur.innerHTML = `
-      <div class="vis-zone" tabindex="0" aria-label="Image de scanner : molette ou glisser pour faire défiler les coupes">
+      <div class="vis-zone" tabindex="0" aria-label="Image de scanner : molette, glisser ou flèches pour faire défiler les coupes ; + et − pour zoomer, 0 pour réinitialiser">
         <canvas></canvas>
         <div class="vis-info vis-haut"></div>
         <div class="vis-info vis-bas"></div>
@@ -52,25 +90,53 @@ export class Visualiseur {
     this.horsEcran = document.createElement('canvas');
     this.image = null;
 
-    this.curseur.addEventListener('input', () => this.allerA(+this.curseur.value));
-    conteneur.querySelector('.vis-prec').addEventListener('click', () => this.allerA(this.index - 1));
-    conteneur.querySelector('.vis-suiv').addEventListener('click', () => this.allerA(this.index + 1));
-    conteneur.querySelector('.vis-reinit').addEventListener('click', () => this.reinitialiser());
-    this.boutonCalque.addEventListener('click', () => this.afficherCalque(!this.calqueVisible));
+    this.curseur.addEventListener('input', () => this.allerA(+this.curseur.value), { signal });
+    conteneur.querySelector('.vis-prec').addEventListener('click', () => this.allerA(this.index - 1), { signal });
+    conteneur.querySelector('.vis-suiv').addEventListener('click', () => this.allerA(this.index + 1), { signal });
+    conteneur.querySelector('.vis-reinit').addEventListener('click', () => this.reinitialiser(), { signal });
+    this.boutonCalque.addEventListener('click', () => this.afficherCalque(!this.calqueVisible), { signal });
     this.outils.addEventListener('click', (e) => {
-      const k = e.target.dataset?.fenetre;
+      const k = e.target.closest?.('[data-fenetre]')?.dataset.fenetre;
       if (k) this.choisirFenetre(k);
-    });
+    }, { signal });
     // Les boutons ne doivent pas déclencher le défilement de l'image.
-    this.outils.addEventListener('pointerdown', (e) => e.stopPropagation());
-    this.outils.addEventListener('dblclick', (e) => e.stopPropagation());
-    this.brancherInteractions();
-    new ResizeObserver(() => this.dessiner()).observe(this.zone);
+    this.outils.addEventListener('pointerdown', (e) => e.stopPropagation(), { signal });
+    this.outils.addEventListener('dblclick', (e) => e.stopPropagation(), { signal });
+    this.brancherInteractions(signal);
+    // Redessin regroupé à la trame suivante : un redimensionnement continu ne redessine qu'une fois par image.
+    this.observateur = new ResizeObserver(() => this.planifierDessin());
+    this.observateur.observe(this.zone);
+    this.surveillerResolution();
+  }
+
+  // Un changement de devicePixelRatio (zoom du navigateur, autre écran) ne déclenche pas toujours le ResizeObserver.
+  surveillerResolution() {
+    if (typeof matchMedia !== 'function' || this.abandon.signal.aborted) return;
+    const mq = matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+    mq.addEventListener?.('change', () => { this.planifierDessin(); this.surveillerResolution(); }, { once: true, signal: this.abandon.signal });
+  }
+
+  // Retire les écouteurs et l'observateur (à appeler si le conteneur est retiré de la page).
+  detruire() {
+    this.abandon.abort();
+    this.observateur.disconnect();
+    if (this.trame) cancelAnimationFrame(this.trame);
+    this.trame = 0;
+    this.jeton++;
+  }
+
+  // Demande un redessin à la prochaine trame (plusieurs demandes dans la même trame n'en font qu'un).
+  planifierDessin() {
+    if (this.trame || this.abandon.signal.aborted) return;
+    this.trame = requestAnimationFrame(() => { this.trame = 0; this.dessiner(); });
   }
 
   definirPile(pile, { index } = {}) {
     this.pile = pile;
     this.image = null;
+    this.indexImage = -1;
+    this.erreur = null;
+    this.jeton++; // invalide un chargement en cours sur la série précédente
     this.cacheImage = null;
     this.calque = null;
     this.calqueVisible = false;
@@ -85,6 +151,7 @@ export class Visualiseur {
     this.vide.hidden = true;
     this.index = -1;
     this.allerA(index ?? Math.floor(pile.nombre / 2), { silencieux: true });
+    this.dessiner(); // efface aussitôt l'image de la série précédente
   }
 
   definirCalque(calque) {
@@ -97,7 +164,7 @@ export class Visualiseur {
     this.calqueVisible = oui && !!this.calque;
     this.boutonCalque.setAttribute('aria-pressed', String(this.calqueVisible));
     this.cacheImage = null;
-    this.dessiner();
+    this.planifierDessin();
   }
 
   marquerFenetre(k) {
@@ -121,64 +188,73 @@ export class Visualiseur {
     const delta = i - this.index;
     this.index = i;
     this.curseur.value = i;
-    this.charger();
+    this.charger(Math.sign(delta));
     if (!silencieux) this.surChangement(this, delta);
   }
 
-  async charger() {
+  // direction : sens du dernier déplacement (-1, 0, 1), pour précharger en priorité les coupes à venir.
+  async charger(direction = 0) {
+    const jeton = ++this.jeton;
     const i = this.index;
     const pile = this.pile;
+    if (!pile || i < 0) return;
+    let c = null;
+    let erreur = null;
     try {
-      const c = await pile.coupe(i);
-      if (i !== this.index || pile !== this.pile) return; // l'utilisateur a déjà défilé plus loin
-      this.image = c;
-      this.cacheImage = null;
-      this.erreur = null;
+      c = await pile.coupe(i);
     } catch (e) {
-      if (i !== this.index) return;
-      this.image = null;
-      this.erreur = e.message;
+      erreur = e?.message || String(e);
     }
-    this.dessiner();
-    // Précharge les voisines pour un défilement fluide.
-    for (const d of [1, -1, 2, -2, 3]) {
+    // Une demande plus récente (autre coupe, autre variante de fenêtre, autre série) l'emporte.
+    if (jeton !== this.jeton) return;
+    this.image = c;
+    this.indexImage = c ? i : -1;
+    this.cacheImage = null;
+    this.erreur = erreur;
+    this.planifierDessin();
+    if (!c) return;
+    // Précharge les voisines pour un défilement fluide, d'abord dans le sens du défilement.
+    const ecarts = direction ? [1, 2, 3, 4, -1].map((d) => d * direction) : [1, -1, 2, -2, 3];
+    for (const d of ecarts) {
       const j = i + d;
-      if (j >= 0 && j < pile.nombre) pile.coupe(j).catch(() => {});
+      if (j >= 0 && j < pile.nombre) Promise.resolve().then(() => pile.coupe(j)).catch(() => {});
     }
   }
 
   definirFenetre(f) {
     this.fenetre = { largeur: Math.max(1, f.largeur), centre: f.centre };
     this.cacheImage = null;
-    this.dessiner();
+    this.planifierDessin();
   }
 
   reinitialiser() {
     this.vue = { zoom: 1, dx: 0, dy: 0 };
     if (this.pile?.calibre) { this.fenetre = { ...FENETRES.poumon }; this.marquerFenetre('poumon'); }
     this.cacheImage = null;
-    this.dessiner();
+    this.planifierDessin();
   }
 
   // Convertit la coupe courante en image affichable (fenêtrage pour les UH, calque éventuel).
   imageAffichable() {
     const c = this.image;
-    const masque = this.calqueVisible && this.calque?.masques[this.index];
+    // Le masque suit la coupe affichée, pas celle en cours de chargement.
+    const masque = this.calqueVisible && this.calque?.masques[this.indexImage];
     if (c.type === 'image' && !masque) return c.image;
     if (this.cacheImage) return this.cacheImage;
-    this.horsEcran.width = c.largeur;
-    this.horsEcran.height = c.hauteur;
+    // Réaffecter width/height réinitialise le canevas : seulement si la taille change.
+    if (this.horsEcran.width !== c.largeur) this.horsEcran.width = c.largeur;
+    if (this.horsEcran.height !== c.hauteur) this.horsEcran.height = c.hauteur;
     const hctx = this.horsEcran.getContext('2d', { willReadFrequently: true });
     let img;
     if (c.type === 'uh') {
+      // La table ne dépend que de la fenêtre : elle est réutilisée d'une coupe à l'autre.
       const { largeur: L, centre: C } = this.fenetre;
-      const bas = C - L / 2;
-      const lut = new Uint8ClampedArray(65536);
-      for (let v = -32768; v < 32768; v++) {
-        const g = ((v - bas) / L) * 255;
-        lut[v + 32768] = c.inverse ? 255 - g : g;
-      }
-      img = hctx.createImageData(c.largeur, c.hauteur);
+      const cle = `${L}|${C}|${!!c.inverse}`;
+      if (this.lut?.cle !== cle) this.lut = { cle, table: lutFenetre(L, C, !!c.inverse) };
+      const lut = this.lut.table;
+      img = this.imageDonnees?.width === c.largeur && this.imageDonnees.height === c.hauteur
+        ? this.imageDonnees
+        : (this.imageDonnees = hctx.createImageData(c.largeur, c.hauteur));
       const px = img.data;
       const d = c.donnees;
       for (let i = 0, j = 0; i < d.length; i++, j += 4) {
@@ -210,10 +286,11 @@ export class Visualiseur {
   }
 
   dessiner() {
-    const r = this.zone.getBoundingClientRect();
+    if (this.trame) { cancelAnimationFrame(this.trame); this.trame = 0; }
+    // Le canevas occupe la zone sans sa bordure : clientWidth/clientHeight, pas getBoundingClientRect.
     const dpr = window.devicePixelRatio || 1;
-    const W = Math.max(1, Math.round(r.width * dpr));
-    const H = Math.max(1, Math.round(r.height * dpr));
+    const W = Math.max(1, Math.round(this.zone.clientWidth * dpr));
+    const H = Math.max(1, Math.round(this.zone.clientHeight * dpr));
     if (this.canvas.width !== W || this.canvas.height !== H) {
       this.canvas.width = W;
       this.canvas.height = H;
@@ -241,7 +318,7 @@ export class Visualiseur {
 
     const p = this.pile;
     const lignes = [`${p.unite || 'Coupe'} ${this.index + 1} / ${p.nombre}`];
-    const leg = p.legende(this.index);
+    const leg = this.index >= 0 ? p.legende(this.index) : '';
     if (leg) lignes.push(leg);
     this.infoHaut.textContent = lignes.join('\n');
     this.infoBas.textContent = this.erreur
