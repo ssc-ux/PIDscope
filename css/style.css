@@ -156,6 +156,7 @@ a.carte:focus-visible { outline-offset: 3px; border-color: var(--bord-survol); }
 .badge { display: inline-block; font-size: .75rem; padding: .12rem .6rem; border-radius: var(--pilule); background: var(--surface-2); border: 1px solid var(--bord); color: var(--texte-2); }
 .badge.relu { color: var(--accent); border-color: var(--accent-bord); }
 .badge.brouillon { color: var(--alerte); border-color: var(--alerte-bord); }
+.badge:empty { display: none; }
 
 /* Pages de texte (fiches, méthode, références) */
 .prose { max-width: 46rem; margin: 2rem auto 0; }

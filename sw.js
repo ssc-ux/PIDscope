@@ -5,7 +5,7 @@
 // Tous les chemins sont relatifs à l'emplacement de sw.js (compatible sous-dossier GitHub Pages).
 // Incrémenter VERSION à chaque déploiement modifiant la coquille ; DONNEES/MODELES seulement si leur contenu change.
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const PREFIXE = 'pidscope-';
 const CACHE_COQUILLE = `${PREFIXE}coquille-${VERSION}`;
 const CACHE_DONNEES = `${PREFIXE}donnees-v1`;
