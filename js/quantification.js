@@ -156,7 +156,7 @@ export function classerCoupe(hu, largeur, hauteur, poumon, pixelMm, p = PARAMETR
   const fin = new Uint8Array(hu.length);
   for (let i = 0; i < fin.length; i++) fin[i] = lisse[i] - ouverture[i] >= p.topHatMin ? 1 : 0;
   garderComposantes(fin, largeur, hauteur, Math.max(3, Math.round(p.longueurMinFineMm / pixelMm)));
-  const nonDense = new Uint8Array(dense.length), huNonDense = new Int16Array(dense.length);
+  const nonDense = new Uint8Array(dense.length), huNonDense = new Float32Array(dense.length);
   for (let i = 0; i < dense.length; i++) if (!denseDilate[i]) { nonDense[i] = 1; huNonDense[i] = hu[i]; }
   const Ifin = integrale(largeur, hauteur, fin);
   const In = integrale(largeur, hauteur, nonDense);
