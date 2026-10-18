@@ -60,10 +60,13 @@ function morpho(m, w, h, dilater, carre) {
 }
 
 // Fermeture (dilatation puis érosion) de rayon r pixels, élément proche d'un octogone.
+// L'érosion traite l'extérieur de l'image comme vide : sans la réunion finale avec m, un poumon à moins de r pixels
+// du bord de l'image serait rogné (la fermeture doit contenir le masque d'origine).
 function fermeture(m, w, h, r) {
   let s = m;
   for (let k = 0; k < r; k++) s = morpho(s, w, h, true, k % 2 === 1);
   for (let k = 0; k < r; k++) s = morpho(s, w, h, false, k % 2 === 1);
+  for (let i = 0; i < s.length; i++) s[i] |= m[i];
   return s;
 }
 
