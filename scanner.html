@@ -38,23 +38,6 @@
           <button type="button" id="fermer-comparaison" hidden>Fermer la comparaison</button>
         </p>
       </div>
-      <div id="bloc-export" hidden>
-        <h2>Créer un cas pour l’atlas</h2>
-        <p class="note" style="margin-top:0">Comme NavRad, IMAIOS ou Radiopaedia : un scanner du service, <strong>anonymisé par construction</strong>. Seules les images (fenêtres poumon et médiastin) sont exportées, sans aucune donnée DICOM (nom, IPP, dates, établissement). Tout se fait sur cet ordinateur ; l’archive obtenue est à transmettre pour publication.</p>
-        <form id="form-export" class="score">
-          <p style="margin:0 0 .5rem"><label>Titre<br><input name="titre" required style="width:100%" placeholder="Sclérodermie : PINS fibrosante"></label></p>
-          <p style="margin:0 0 .5rem"><label>Maladie<br><select name="maladie" required>
-            <option>Sclérodermie systémique</option><option>Syndrome des antisynthétases</option><option>Dermatomyosite anti-MDA5</option>
-            <option>Myopathies inflammatoires</option><option>Polyarthrite rhumatoïde</option><option>Syndrome de Sjögren</option>
-            <option>Lupus systémique</option><option>Connectivite mixte</option><option>Vascularite à ANCA</option><option>IPAF</option><option>Sarcoïdose</option></select></label></p>
-          <p style="margin:0 0 .5rem"><label>Patterns (séparés par des virgules)<br><input name="patterns" style="width:100%" placeholder="PINS fibrosante, respect sous-pleural"></label></p>
-          <p style="margin:0 0 .5rem"><label>Description (facultatif, avec [coupe N])<br><textarea name="texte" rows="4" style="width:100%;font:inherit;color:var(--texte);background:var(--surface-2);border:1px solid var(--bord);border-radius:10px"></textarea></label></p>
-          <p class="note" id="export-alerte" hidden></p>
-          <p style="margin:0 0 .6rem"><label><input type="checkbox" name="accord" required> J’ai l’accord de mon établissement (chef de service, délégué à la protection des données) pour diffuser ce cas anonymisé.</label></p>
-          <button type="submit" class="bouton-principal">Créer l’archive</button>
-          <progress hidden max="1" value="0" id="export-progression"></progress>
-        </form>
-      </div>
       <div id="bloc-etendue" hidden>
         <h2>Étendue <span class="badge" id="etendue-cible"></span></h2>
         <div id="etendue"></div>
