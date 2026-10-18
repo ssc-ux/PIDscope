@@ -58,6 +58,15 @@
         <tr><td>Kurtosis vs lésions totales des experts</td><td>ρ = -0,40 (p = 0,01)</td><td>—</td><td>—</td></tr>
       </table>
       <p><strong>Conclusion</strong> : la carte estime correctement l’ordre de grandeur de l’atteinte totale et du verre dépoli, mais <strong>ne distingue pas de façon fiable la fibrose établie du verre dépoli</strong> (la fibrose établie des experts est classée normale dans 35 % des cas et verre dépoli dans 36 %). La segmentation pulmonaire par seuillage recouvre celle des experts avec un Dice médian de 0,965 (0,920 à 0,983).</p>
+      <h3>Tentative de recalibrage (apprentissage / test)</h3>
+      <p>Les 40 patients ont été répartis en deux moitiés de même étendue d’atteinte (20 d’apprentissage, 20 de test ; 0,5 million de cellules tirées au sort). Sur la moitié d’apprentissage, 13 descripteurs locaux ont été calculés : densités, structures fines à trois contrastes, écart-type, kystes aériens, distance à la plèvre, hauteur dans le thorax. Avec ces descripteurs, on a ensuite testé une grille de 840 combinaisons de seuils, des arbres de décision et un modèle de « boosting » servant de plafond.</p>
+      <table>
+        <tr><th>Moitié test (20 patients)</th><th>Lésions totales : ρ / écart absolu / Dice</th><th>Fibrose : ρ / Dice</th><th>Verre dépoli : ρ / Dice</th></tr>
+        <tr><td>Réglages actuels</td><td>0,64 / 11,3 points / 0,59</td><td>0,37 / 0,21</td><td>0,65 / 0,48</td></tr>
+        <tr><td>Meilleurs seuils de la grille</td><td>0,63 / 10,4 points / 0,59</td><td>0,44 / 0,16</td><td>0,62 / 0,49</td></tr>
+        <tr><td>Boosting, 13 descripteurs (plafond)</td><td>0,65 / 12,6 points / 0,56</td><td>0,52 / 0,26</td><td>0,64 / 0,39</td></tr>
+      </table>
+      <p><strong>Conclusion</strong> : aucun réglage ne fait mieux de façon nette que les réglages actuels, qui sont <strong>conservés</strong>. Même le modèle le plus souple ne sépare pas la fibrose établie du verre dépoli (Dice ≤ 0,26). Avec des descripteurs de densité et de texture locale, la distinction semble hors de portée : elle exigerait un réseau entraîné sur des milliers de coupes annotées, comme CALIPER ou les logiciels commerciaux.</p>
 
       <h2>5. Vérification semi-automatique et score de Goh <span class="badge relu">Validé</span> pour le score</h2>
       <ol>
