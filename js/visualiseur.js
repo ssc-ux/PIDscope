@@ -262,6 +262,7 @@ export class Visualiseur {
         px[j + 3] = 255;
       }
     } else {
+      hctx.clearRect(0, 0, c.largeur, c.hauteur); // le canevas n'est plus réinitialisé à chaque coupe
       hctx.drawImage(c.image, 0, 0);
       img = hctx.getImageData(0, 0, c.largeur, c.hauteur);
     }

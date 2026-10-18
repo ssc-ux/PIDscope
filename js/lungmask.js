@@ -310,6 +310,7 @@ async function charger() {
     session = await ouvrirSession(ort, fournisseur, diffuser);
   }
 
+  const promesseCourante = chargement; // déjà affectée : charger() a rendu la main au moins une fois
   let actif = true;
   const modele = {
     fournisseur,
@@ -333,7 +334,6 @@ async function charger() {
       await session.release?.().catch(() => {});
     },
   };
-  const promesseCourante = chargement;
   return modele;
 }
 
