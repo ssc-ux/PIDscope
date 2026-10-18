@@ -328,63 +328,84 @@ export class Visualiseur {
         : p.mention || 'Image non calibrée (pas d’UH)';
   }
 
-  brancherInteractions() {
+  brancherInteractions(signal) {
     const z = this.zone;
+    const options = { signal };
     let cumul = 0;
     z.addEventListener('wheel', (e) => {
       if (!this.pile) return;
       e.preventDefault();
-      if (e.ctrlKey) { // pincement sur pavé tactile ou Ctrl + molette
-        this.zoomer(Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY);
+      const dy = deltaMolette(e, z.clientHeight);
+      if (e.ctrlKey) { // pincement sur pavé tactile ou Ctrl + molette (borné : un cran de souris ≈ ×1,6)
+        this.zoomer(Math.exp(-limiter(dy, -50, 50) * 0.01), e.clientX, e.clientY);
         return;
       }
-      const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
       if (Math.abs(dy) >= 50) { // cran de molette : une coupe
         cumul = 0;
         this.allerA(this.index + Math.sign(dy));
       } else { // pavé tactile : défilement progressif
+        if (Math.sign(dy) !== Math.sign(cumul)) cumul = 0; // changement de sens : pas de reliquat
         cumul += dy;
         const pas = Math.trunc(cumul / 25);
         if (pas) { cumul -= pas * 25; this.allerA(this.index + pas); }
       }
-    }, { passive: false });
+    }, { passive: false, signal });
 
     const pointeurs = new Map();
     let geste = null;
-    z.addEventListener('contextmenu', (e) => e.preventDefault());
-    z.addEventListener('dblclick', () => this.reinitialiser());
+    let tap = null; // dernier tap tactile bref { t, x, y }, pour le double-tap
+    let tapPossible = false;
+    z.addEventListener('contextmenu', (e) => e.preventDefault(), options);
+    z.addEventListener('dblclick', () => this.reinitialiser(), options);
     z.addEventListener('pointerdown', (e) => {
       if (!this.pile) return;
       z.focus({ preventScroll: true });
-      z.setPointerCapture(e.pointerId);
+      try { z.setPointerCapture(e.pointerId); } catch { /* pointeur déjà relâché */ }
       pointeurs.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (pointeurs.size === 2) geste = { type: 'pincer', ...this.mesurePincement(pointeurs), zoom: this.vue.zoom, dx: this.vue.dx, dy: this.vue.dy };
-      else if (pointeurs.size === 1) {
-        if (e.pointerType === 'touch') { // double-tap : réinitialiser
-          if (e.timeStamp - (this.dernierTap || 0) < 300) this.reinitialiser();
-          this.dernierTap = e.timeStamp;
+      if (pointeurs.size === 2) {
+        tapPossible = false;
+        const r = z.getBoundingClientRect();
+        geste = {
+          type: 'pincer', ...this.mesurePincement(pointeurs), zoom: this.vue.zoom, dx: this.vue.dx, dy: this.vue.dy,
+          cx: r.left + z.clientLeft + z.clientWidth / 2, cy: r.top + z.clientTop + z.clientHeight / 2,
+        };
+      } else if (pointeurs.size === 1) {
+        if (e.pointerType === 'touch') {
+          // Double-tap : deux taps brefs et proches (deux glissers rapides ne réinitialisent pas la vue).
+          if (tap && e.timeStamp - tap.t < 300 && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < 30) {
+            this.reinitialiser();
+            tap = null;
+          }
+          tapPossible = true;
         }
         const type = this.pinceau && e.button === 0 && !e.shiftKey ? 'peindre'
           : e.button === 2 && this.pile.calibre ? 'fenetre'
           : e.button === 1 || e.shiftKey ? 'deplacer'
           : 'defiler';
-        geste = { type, x: e.clientX, y: e.clientY, index: this.index, fenetre: { ...this.fenetre }, dx: this.vue.dx, dy: this.vue.dy };
+        geste = { type, x: e.clientX, y: e.clientY, t: e.timeStamp, index: this.index, fenetre: { ...this.fenetre }, dx: this.vue.dx, dy: this.vue.dy };
         if (type === 'peindre') this.peindre(e.clientX, e.clientY);
       }
-    });
+    }, options);
     z.addEventListener('pointermove', (e) => {
-      if (!pointeurs.has(e.pointerId) || !geste) return;
+      if (!pointeurs.has(e.pointerId)) return;
+      // Position toujours à jour, même sans geste en cours : un pincement repris ensuite part du bon point.
       pointeurs.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (geste.type === 'pincer' && pointeurs.size === 2) {
+      if (!geste) return;
+      if (geste.type === 'pincer') {
+        if (pointeurs.size !== 2) return;
         const m = this.mesurePincement(pointeurs);
-        this.vue.zoom = limiter(geste.zoom * m.distance / geste.distance, 0.5, 10);
-        this.vue.dx = geste.dx + m.x - geste.x;
-        this.vue.dy = geste.dy + m.y - geste.y;
-        this.dessiner();
+        const zoom = limiter(geste.zoom * m.distance / geste.distance, 0.5, 10);
+        // Le point de l'image sous les doigts au départ suit le milieu des doigts.
+        const k = zoom / geste.zoom;
+        this.vue.zoom = zoom;
+        this.vue.dx = m.x - geste.cx - (geste.x - geste.cx - geste.dx) * k;
+        this.vue.dy = m.y - geste.cy - (geste.y - geste.cy - geste.dy) * k;
+        this.planifierDessin();
         return;
       }
       const dx = e.clientX - geste.x;
       const dy = e.clientY - geste.y;
+      if (tapPossible && Math.hypot(dx, dy) > 10) tapPossible = false;
       if (geste.type === 'peindre') {
         this.peindre(e.clientX, e.clientY);
       } else if (geste.type === 'defiler') {
@@ -397,26 +418,36 @@ export class Visualiseur {
       } else if (geste.type === 'deplacer') {
         this.vue.dx = geste.dx + dx;
         this.vue.dy = geste.dy + dy;
-        this.dessiner();
+        this.planifierDessin();
       }
-    });
+    }, options);
     const fin = (e) => {
-      pointeurs.delete(e.pointerId);
+      if (!pointeurs.delete(e.pointerId)) return; // déjà traité (pointerup puis lostpointercapture)
+      if (e.type === 'pointerup' && e.pointerType === 'touch' && tapPossible && geste && e.timeStamp - geste.t < 250) {
+        tap = { t: e.timeStamp, x: e.clientX, y: e.clientY };
+      }
+      tapPossible = false;
       // Après un pincement, le doigt restant ne doit pas faire défiler brutalement.
       geste = null;
     };
-    z.addEventListener('pointerup', fin);
-    z.addEventListener('pointercancel', fin);
+    z.addEventListener('pointerup', fin, options);
+    z.addEventListener('pointercancel', fin, options);
+    // Capture perdue sans pointerup (élément masqué, alerte…) : sans cela le pointeur resterait « enfoncé ».
+    z.addEventListener('lostpointercapture', fin, options);
 
     z.addEventListener('keydown', (e) => {
       if (!this.pile) return;
-      const pas = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1, PageUp: -10, PageDown: 10 }[e.key];
-      if (pas) this.allerA(this.index + pas);
-      else if (e.key === 'Home') this.allerA(0);
-      else if (e.key === 'End') this.allerA(this.pile.nombre - 1);
-      else return;
+      const a = actionClavier(e);
+      if (!a) return;
+      if (a.type === 'pas') this.allerA(this.index + a.valeur);
+      else if (a.type === 'debut') this.allerA(0);
+      else if (a.type === 'fin') this.allerA(this.pile.nombre - 1);
+      else if (a.type === 'zoom') {
+        const r = z.getBoundingClientRect();
+        this.zoomer(a.facteur, r.left + z.clientLeft + z.clientWidth / 2, r.top + z.clientTop + z.clientHeight / 2);
+      } else if (a.type === 'reinit') this.reinitialiser();
       e.preventDefault();
-    });
+    }, options);
   }
 
   definirPinceau(pinceau) {
@@ -424,14 +455,14 @@ export class Visualiseur {
     this.zone.style.cursor = pinceau ? 'crosshair' : '';
   }
 
-  // Peint un disque du calque (coupe courante) sous le pointeur.
+  // Peint un disque du calque (coupe affichée) sous le pointeur.
   peindre(clientX, clientY) {
-    const masque = this.calque?.masques[this.index];
-    if (!masque || !this.image || !this.rectImage) return;
+    const masque = this.calque?.masques[this.indexImage];
+    if (!this.pinceau || !masque || !this.image || !this.rectImage) return;
     const z = this.zone.getBoundingClientRect();
     const { x, y, w, h, dpr } = this.rectImage;
-    const ix = (((clientX - z.left) * dpr - x) / w) * this.image.largeur;
-    const iy = (((clientY - z.top) * dpr - y) / h) * this.image.hauteur;
+    const ix = (((clientX - z.left - this.zone.clientLeft) * dpr - x) / w) * this.image.largeur;
+    const iy = (((clientY - z.top - this.zone.clientTop) * dpr - y) / h) * this.image.hauteur;
     const { largeur: mw, hauteur: mh } = this.calque;
     const pixelMm = this.pile.pixelMm || this.pile.espacementPixel?.[1] || 1;
     const r = Math.max(0.5, this.pinceau.rayonMm / (2 * pixelMm));
@@ -440,8 +471,8 @@ export class Visualiseur {
       for (let mx = Math.floor(cx - r); mx <= Math.ceil(cx + r); mx++)
         if (mx >= 0 && my >= 0 && mx < mw && my < mh && (mx - cx) ** 2 + (my - cy) ** 2 <= r * r) masque[my * mw + mx] = this.pinceau.valeur;
     this.cacheImage = null;
-    this.dessiner();
-    this.surPeinture(this.index);
+    this.planifierDessin();
+    this.surPeinture(this.indexImage);
   }
 
   mesurePincement(pointeurs) {
@@ -450,15 +481,16 @@ export class Visualiseur {
   }
 
   zoomer(facteur, cx, cy) {
-    const r = this.zone.getBoundingClientRect();
+    const z = this.zone;
+    const r = z.getBoundingClientRect();
     const ancien = this.vue.zoom;
     const nouveau = limiter(ancien * facteur, 0.5, 10);
-    // Garde le point sous le curseur immobile.
-    const px = cx - r.left - r.width / 2;
-    const py = cy - r.top - r.height / 2;
+    // Garde le point sous le curseur immobile (repère : centre du canevas, bordure exclue).
+    const px = cx - r.left - z.clientLeft - z.clientWidth / 2;
+    const py = cy - r.top - z.clientTop - z.clientHeight / 2;
     this.vue.dx = px - (px - this.vue.dx) * (nouveau / ancien);
     this.vue.dy = py - (py - this.vue.dy) * (nouveau / ancien);
     this.vue.zoom = nouveau;
-    this.dessiner();
+    this.planifierDessin();
   }
 }
