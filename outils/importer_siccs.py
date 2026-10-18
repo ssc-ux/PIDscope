@@ -11,19 +11,22 @@ from pathlib import Path
 import nibabel as nib, nrrd, numpy as np
 
 source = Path(sys.argv[1])
+choix = {int(x) for x in sys.argv[2].split(',')} if len(sys.argv) > 2 else None  # (ré)importer seulement ces patients
 racine = Path(__file__).resolve().parent.parent
 cas_dir = racine / 'data' / 'cas'
 index = json.loads((cas_dir / 'index.json').read_text())
-index = [c for c in index if not c['id'].startswith('siccs-')]
+index = [c for c in index if not (c['id'].startswith('siccs-') and (choix is None or int(c['id'][6:]) in choix))]
 nouveaux = []
 for n in sorted(int(p.stem) for p in source.glob('*.nii')):
+    if choix is not None and n not in choix:
+        continue
     img = nib.load(str(source / f'{n}.nii'))
     nz = img.shape[2]
     zz = float(img.header.get_zooms()[2])
     lab, h = nrrd.read(str(source / f'{n}.nrrd'))
     # Noms des segments (variables d'un fichier à l'autre) : 2 = fibrose établie, 3 = fibrose fine / verre dépoli.
     noms = {h[k.replace('_Name', '_LabelValue')]: h[k].lower() for k in h if k.startswith('Segment') and k.endswith('_Name')}
-    if noms and not ('established' in noms.get('2', '') and 'ggo' in noms.get('3', '')):
+    if noms and not ('fibrosis' in noms.get('2', '') and ('fine' in noms.get('3', '') or 'ggo' in noms.get('3', ''))):
         print(n, 'étiquettes inattendues', noms); continue
     poumon = int((lab > 0).sum())
     fib = 100 * int((lab == 2).sum()) / poumon
@@ -32,8 +35,10 @@ for n in sorted(int(p.stem) for p in source.glob('*.nii')):
     pas = 1 if sequentiel or zz >= 2 else max(1, round(2 / zz))
     ident = f'siccs-{n:02d}'
     sortie = cas_dir / ident
+    if sortie.exists():
+        import shutil; shutil.rmtree(sortie)
     res = subprocess.run([sys.executable, str(racine / 'outils' / 'creer_cas.py'), str(source / f'{n}.nii'), str(sortie),
-                          '--pas', str(pas), '--qualite', '80', '--etiquettes', str(source / f'{n}.nrrd')], capture_output=True, text=True)
+                          '--pas', str(pas), '--qualite', '80', '--lisser-mediastin', '--etiquettes', str(source / f'{n}.nrrd')], capture_output=True, text=True)
     if res.returncode:
         print(n, 'échec', res.stderr[-300:]); continue
     serie = json.loads(res.stdout)['serie']
@@ -51,7 +56,7 @@ for n in sorted(int(p.stem) for p in source.glob('*.nii')):
         'source': {
             'nom': 'SICCS : SSc-ILD chest CT segmentation (Harvard Dataverse)', 'url': 'https://doi.org/10.7910/DVN/3HNP33',
             'auteur': 'Vahdani AM et al., Reumatismo 2026;78:1920 (doi:10.4081/reumatismo.2026.1920)', 'licence': 'CC0 1.0',
-            'modifications': 'Volume NIfTI converti en images WebP (fenêtres poumon et médiastin)' + (f', une coupe sur {pas}' if pas > 1 else '') + ' ; segmentation des experts exportée à demi-résolution.',
+            'modifications': 'Volume NIfTI converti en images WebP (fenêtres poumon et médiastin)' + (f', une coupe sur {pas}' if pas > 1 else '') + ' ; fenêtre médiastinale lissée (filtre gaussien de 1 pixel) pour réduire le bruit ; segmentation des experts exportée à demi-résolution.',
         },
         'serie': serie,
         'experts': {
@@ -75,5 +80,6 @@ for n in sorted(int(p.stem) for p in source.glob('*.nii')):
     (sortie / 'cas.json').write_text(json.dumps(cas, ensure_ascii=False, indent=2))
     nouveaux.append({k: cas[k] for k in ('id', 'titre', 'description', 'categorie', 'maladies', 'patterns', 'statut', 'etiquette')})
     print(ident, serie['nombre'], 'coupes', f'fib {fib:.1f} % vd {vd:.1f} %', 'séquentiel' if sequentiel else f'pas {pas}', flush=True)
-(cas_dir / 'index.json').write_text(json.dumps(nouveaux + index, ensure_ascii=False, indent=2))
+tous = sorted(nouveaux + [c for c in index if c['id'].startswith('siccs-')], key=lambda c: c['id'])
+(cas_dir / 'index.json').write_text(json.dumps(tous + [c for c in index if not c['id'].startswith('siccs-')], ensure_ascii=False, indent=2))
 print(len(nouveaux), 'cas SICCS importés')

@@ -1,5 +1,581 @@
 [
   {
+    "id": "siccs-01",
+    "titre": "Sclérodermie : PID, patient 1 (série complète)",
+    "description": "Série complète · lésions sur 3 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-02",
+    "titre": "Sclérodermie : PID, patient 2 (série complète)",
+    "description": "Série complète · lésions sur 30 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-03",
+    "titre": "Sclérodermie : PID, patient 3 (série complète)",
+    "description": "Série complète · lésions sur 32 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-04",
+    "titre": "Sclérodermie : PID, patient 4 (série complète)",
+    "description": "Série complète · lésions sur 13 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-05",
+    "titre": "Sclérodermie : PID, patient 5 (série complète)",
+    "description": "Série complète · lésions sur 7 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-06",
+    "titre": "Sclérodermie : PID, patient 6 (série complète)",
+    "description": "Série complète · lésions sur 2 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-07",
+    "titre": "Sclérodermie : PID, patient 7 (série complète)",
+    "description": "Série complète · lésions sur 13 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-08",
+    "titre": "Sclérodermie : PID, patient 8 (série complète)",
+    "description": "Série complète · lésions sur 9 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-09",
+    "titre": "Sclérodermie : PID, patient 9 (série complète)",
+    "description": "Série complète · lésions sur 0 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Atteinte minime"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-10",
+    "titre": "Sclérodermie : PID, patient 10 (série complète)",
+    "description": "Série complète · lésions sur 62 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-11",
+    "titre": "Sclérodermie : PID, patient 11 (série complète)",
+    "description": "Série complète · lésions sur 33 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-12",
+    "titre": "Sclérodermie : PID, patient 12 (série complète)",
+    "description": "Série complète · lésions sur 12 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-13",
+    "titre": "Sclérodermie : PID, patient 13 (série complète)",
+    "description": "Série complète · lésions sur 27 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-14",
+    "titre": "Sclérodermie : PID, patient 14 (série complète)",
+    "description": "Série complète · lésions sur 40 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-15",
+    "titre": "Sclérodermie : PID, patient 15 (série complète)",
+    "description": "Série complète · lésions sur 55 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-16",
+    "titre": "Sclérodermie : PID, patient 16 (série complète)",
+    "description": "Série complète · lésions sur 24 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-17",
+    "titre": "Sclérodermie : PID, patient 17 (série complète)",
+    "description": "Série complète · lésions sur 15 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-18",
+    "titre": "Sclérodermie : PID, patient 18 (série complète)",
+    "description": "Série complète · lésions sur 40 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-19",
+    "titre": "Sclérodermie : PID, patient 19 (série complète)",
+    "description": "Série complète · lésions sur 20 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-20",
+    "titre": "Sclérodermie : PID, patient 20 (série complète)",
+    "description": "Série complète · lésions sur 36 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-21",
+    "titre": "Sclérodermie : PID, patient 21 (série complète)",
+    "description": "Série complète · lésions sur 41 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-22",
+    "titre": "Sclérodermie : PID, patient 22 (série complète)",
+    "description": "Série complète · lésions sur 11 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-23",
+    "titre": "Sclérodermie : PID, patient 23 (série complète)",
+    "description": "Série complète · lésions sur 35 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-24",
+    "titre": "Sclérodermie : PID, patient 24 (série complète)",
+    "description": "Série complète · lésions sur 5 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-25",
+    "titre": "Sclérodermie : PID, patient 25 (série complète)",
+    "description": "Série complète · lésions sur 32 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-26",
+    "titre": "Sclérodermie : PID, patient 26 (série complète)",
+    "description": "Série complète · lésions sur 1 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-27",
+    "titre": "Sclérodermie : PID, patient 27 (série complète)",
+    "description": "Série complète · lésions sur 19 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-28",
+    "titre": "Sclérodermie : PID, patient 28 (série complète)",
+    "description": "Série complète · lésions sur 9 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-29",
+    "titre": "Sclérodermie : PID, patient 29 (série complète)",
+    "description": "Série complète · lésions sur 23 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-30",
+    "titre": "Sclérodermie : PID, patient 30 (série complète)",
+    "description": "Série complète · lésions sur 8 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-31",
+    "titre": "Sclérodermie : PID, patient 31 (série complète)",
+    "description": "Série complète · lésions sur 13 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-32",
+    "titre": "Sclérodermie : PID, patient 32 (série complète)",
+    "description": "Série complète · lésions sur 9 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-33",
+    "titre": "Sclérodermie : PID, patient 33 (série complète)",
+    "description": "Série complète · lésions sur 100 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-34",
+    "titre": "Sclérodermie : PID, patient 34 (série complète)",
+    "description": "Série complète · lésions sur 4 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-35",
+    "titre": "Sclérodermie : PID, patient 35 (série complète)",
+    "description": "Série complète · lésions sur 4 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-36",
+    "titre": "Sclérodermie : PID, patient 36 (série complète)",
+    "description": "Série complète · lésions sur 3 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-37",
+    "titre": "Sclérodermie : PID, patient 37 (série complète)",
+    "description": "Série complète · lésions sur 15 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-38",
+    "titre": "Sclérodermie : PID, patient 38 (série complète)",
+    "description": "Série complète · lésions sur 6 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-39",
+    "titre": "Sclérodermie : PID, patient 39 (série complète)",
+    "description": "Série complète · lésions sur 4 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
+    "id": "siccs-40",
+    "titre": "Sclérodermie : PID, patient 40 (série complète)",
+    "description": "Série complète · lésions sur 10 % du poumon selon les experts",
+    "categorie": "Connectivités",
+    "maladies": [
+      "Sclérodermie systémique"
+    ],
+    "patterns": [
+      "Fibrose établie",
+      "Fibrose fine / verre dépoli"
+    ],
+    "statut": "brouillon",
+    "etiquette": "TDM · SÉRIE"
+  },
+  {
     "id": "ssc-pins-verre-depoli",
     "titre": "Sclérodermie : PINS (verre dépoli basal) et œsophage dilaté",
     "description": "Figure publiée : PINS · Sclérodermie systémique",

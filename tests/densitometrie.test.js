@@ -48,3 +48,16 @@ test('densitométrie : coupes non contiguës → pas de volume', async () => {
   assert.equal(r.haaMl, null);
   assert.ok(r.haaPourcent > 0);
 });
+
+test('densitométrie : des centaines de milliers de petites bulles d’air ne font pas planter le calcul', async () => {
+  // Corps à 40 UH criblé de bulles d'air isolées (une cellule de demi-résolution sur deux) : ≈ 250 000 composantes.
+  const T = 512, N = 16;
+  // Motif décalé d'une coupe à l'autre : les bulles ne se touchent pas non plus en 3D.
+  const coupe = (k) => {
+    const d = new Int16Array(T * T).fill(-1000);
+    for (let y = 4; y < T - 4; y++) for (let x = 4; x < T - 4; x++) d[y * T + x] = ((x >> 1) % 2 === k % 2 && (y >> 1) % 2 === 0) ? -1000 : 40;
+    return { donnees: d, largeur: T, hauteur: T };
+  };
+  const r = await analyserDensite({ nombre: N, coupe: async (k) => coupe(k) }, { espacementPixel: [1, 1], espacementCoupes: 1, epaisseur: 1 });
+  assert.ok(r.masques.length === N);
+});

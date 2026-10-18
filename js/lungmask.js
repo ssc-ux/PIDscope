@@ -92,7 +92,8 @@ function boiteCorps(hu, h, w) {
   m = morpho(morpho(m, 128, 128, false), 128, 128, false); // érosion × 2
   const { lab, tailles } = etiqueter(m, 128, 128, false);
   if (tailles.length > 1) {
-    const max = tailles.indexOf(Math.max(...tailles.slice(1)));
+    let max = 1;
+    for (let e = 2; e < tailles.length; e++) if (tailles[e] > tailles[max]) max = e;
     for (let i = 0; i < m.length; i++) m[i] = lab[i] === max ? 1 : 0;
     m = morpho(morpho(m, 128, 128, true), 128, 128, true); // dilatation × 2
   }

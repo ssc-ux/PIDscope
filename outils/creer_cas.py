@@ -47,7 +47,7 @@ def lire_nifti(chemin):
     vol = np.asarray(img.dataobj, dtype=np.float32)  # pente et ordonnée NIfTI appliquées
     if vol.ndim != 3:
         sys.exit(f'Volume NIfTI de dimension {vol.ndim} : non pris en charge.')
-    if UH and vol.min() >= 0:  # valeurs brutes sans recalibrage (air ≈ 0) : conversion en UH
+    if UH and vol.min() > -1:  # valeurs brutes sans recalibrage (air ≈ 0, aux arrondis près) : conversion en UH
         print('Valeurs brutes détectées : UH = valeur - 1024', file=sys.stderr)
         vol -= 1024
     zx, zy, zz = (float(v) for v in img.header.get_zooms()[:3])
@@ -104,6 +104,7 @@ def main():
     p.add_argument('--fin', type=float, default=1.0)
     p.add_argument('--vignette', type=float, default=0.55, help='position de la coupe vignette (fraction)')
     p.add_argument('--qualite', type=int, default=85)
+    p.add_argument('--lisser-mediastin', action='store_true', help='lissage gaussien (1 pixel) de la fenêtre médiastinale : moins de bruit, fichiers 4 fois plus légers')
     p.add_argument('--etiquettes', help="carte d'étiquettes d'experts (NRRD/NIfTI) alignée sur le volume, exportée à demi-résolution")
     a = p.parse_args()
 
@@ -123,6 +124,10 @@ def main():
             im = Image.fromarray(fenetrer(s, c, l))
             if im.size != taille:
                 im = im.resize(taille, Image.LANCZOS)
+            if nom == 'mediastin' and a.lisser_mediastin:
+                from PIL import ImageFilter
+                im.filter(ImageFilter.GaussianBlur(1.0)).save(sortie / nom / f'{i + 1:04d}.webp', quality=60, method=6)
+                continue
             im.save(sortie / nom / f'{i + 1:04d}.webp', quality=a.qualite, method=6)
     if a.etiquettes:
         global UH

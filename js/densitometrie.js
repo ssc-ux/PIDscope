@@ -146,7 +146,7 @@ export async function analyserDensite(pile, geometrie, progression = () => {}, o
       }
       tailles.push(taille);
     }
-  const plusGrande = Math.max(0, ...tailles);
+  const plusGrande = tailles.reduce((m, t) => (t > m ? t : m), 0); // pas de Math.max(...) : des centaines de milliers de composantes possibles
   const garder = tailles.map((t) => t > 0 && t >= 0.2 * plusGrande);
 
   // Étape 3 : masque final par coupe (fermeture, comblement des trous), puis mesures.

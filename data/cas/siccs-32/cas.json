@@ -1,0 +1,44 @@
+{
+  "id": "siccs-32",
+  "titre": "Sclérodermie : PID, patient 32 (série complète)",
+  "description": "Série complète · lésions sur 9 % du poumon selon les experts",
+  "categorie": "Connectivités",
+  "maladies": [
+    "Sclérodermie systémique"
+  ],
+  "patterns": [
+    "Fibrose établie"
+  ],
+  "statut": "brouillon",
+  "relecture": {
+    "par": "",
+    "date": ""
+  },
+  "etiquette": "TDM · SÉRIE",
+  "source": {
+    "nom": "SICCS : SSc-ILD chest CT segmentation (Harvard Dataverse)",
+    "url": "https://doi.org/10.7910/DVN/3HNP33",
+    "auteur": "Vahdani AM et al., Reumatismo 2026;78:1920 (doi:10.4081/reumatismo.2026.1920)",
+    "licence": "CC0 1.0",
+    "modifications": "Volume NIfTI converti en images WebP (fenêtres poumon et médiastin) ; fenêtre médiastinale lissée (filtre gaussien de 1 pixel) pour réduire le bruit ; segmentation des experts exportée à demi-résolution."
+  },
+  "serie": {
+    "nombre": 152,
+    "chiffres": 4,
+    "espacement_mm": 1.5,
+    "pixel_mm": 0.6,
+    "fenetres": {
+      "poumon": "poumon/{n}.webp",
+      "mediastin": "mediastin/{n}.webp"
+    }
+  },
+  "experts": {
+    "modele": "experts/{n}.png",
+    "etendue": {
+      "fibrose": 7.9,
+      "verre_depoli": 0.8
+    },
+    "source": "Segmentation de la cohorte SICCS par deux experts (fibrose établie, fibrose fine / verre dépoli)."
+  },
+  "texte": "## Le cas\nPID d'un patient atteint de sclérodermie systémique (critères ACR/EULAR 2013), cohorte SICCS (Téhéran, scanners de pratique courante, appareils variés).\nAcquisition volumique : coupes de 1.5 mm, affichées toutes les 1.5 mm (152 coupes).\n\n## Exercice\n- Faites défiler toute la série : décrivez les lésions élémentaires (verre dépoli, réticulations, bronchectasies de traction, rayon de miel) et leur distribution.\n- Cherchez les signes associés : œsophage dilaté (fenêtre médiastin), respect sous-pleural.\n- Cotez l'étendue (onglet **Étendue**, score de Goh), puis comparez avec la **lecture des experts** (bouton ci-dessus).\n\n## Lecture des experts\nFibrose établie : **7.9 %** du poumon ; fibrose fine / verre dépoli : **0.8 %** ; total : **8.6 %**. Ces pourcentages sont volumiques : ils ne remplacent pas le score de Goh, estimé visuellement sur 5 niveaux."
+}

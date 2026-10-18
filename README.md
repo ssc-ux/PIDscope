@@ -2,7 +2,7 @@
 
 Site pédagogique pour apprendre à lire le scanner thoracique des **pneumopathies interstitielles diffuses (PID) de médecine interne**, destiné aux internes de médecine interne.
 
-- **Atlas** : de vrais scanners complets (bases ouvertes Zenodo et TCIA) à faire défiler, fenêtres poumon et médiastin, sémiologie reliée aux coupes.
+- **Atlas** : 40 séries complètes de PID de sclérodermie avec la segmentation de deux experts (SICCS, Harvard Dataverse, CC0), 24 figures d'articles en libre accès (sclérodermie, myosites, PR, Sjögren), scanners normal et COVID (Zenodo, TCIA).
 - **Fiches** : lésions élémentaires, patterns de PID, orientation selon la connectivite, avec références.
 - **Mon scanner** : ouverture locale d’un DICOM ou d’images JPEG/PNG, comparaison de deux examens avec défilement synchronisé. **Les images ne quittent jamais l’appareil.**
 - **Étendue** : scores de Goh, Warrick et Kazerooni ; quantification : mesures de densité publiées (HAA selon MESA, indices d'histogramme selon Best 2003) et carte exploratoire verre dépoli / fibrose / condensation, corrigeable au pinceau sur les 5 niveaux de Goh.
