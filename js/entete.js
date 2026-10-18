@@ -15,7 +15,7 @@ const entete = document.querySelector('header.entete');
 if (entete) {
   entete.innerHTML = `
     <a class="marque" href="./">${LOGO}PIDscope <span class="pastille">Médecine interne</span></a>
-    <nav>${PAGES.map(([href, nom]) => `<a href="${href}"${href === page ? ' aria-current="page"' : ''}>${nom}</a>`).join('')}</nav>`;
+    <nav aria-label="Navigation principale">${PAGES.map(([href, nom]) => `<a href="${href}"${href === page ? ' aria-current="page"' : ''}>${nom}</a>`).join('')}</nav>`;
 }
 const pied = document.querySelector('footer.pied');
 if (pied) {
