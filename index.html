@@ -5,21 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PIDscope</title>
   <meta name="description" content="Apprendre à lire le scanner des pneumopathies interstitielles diffuses de médecine interne sur de vrais scanners.">
+  <meta name="theme-color" content="#000000">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PIDscope">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="PIDscope">
+  <meta property="og:description" content="Apprendre à lire le scanner des pneumopathies interstitielles diffuses de médecine interne sur de vrais scanners.">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%23000' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M18 11c-4 1-8 8-8 15 0 3 2 4 4 3l4-2zM22 11c4 1 8 8 8 15 0 3-2 4-4 3l-4-2z' fill='%23fff'/%3E%3Cpath d='M20 7v9' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icones/icone.svg">
+  <script type="module" src="js/pwa.js"></script>
   <script type="module" src="js/entete.js"></script>
   <script type="module" src="js/accueil.js"></script>
 </head>
 <body data-page="index.html">
+  <a class="lien-evitement" href="#contenu">Aller au contenu</a>
   <header class="entete"></header>
-  <main>
+  <main id="contenu">
     <section class="heros">
       <h1>Lire le scanner des <em>PID.</em></h1>
       <p>De vrais scanners thoraciques à faire défiler, avec la sémiologie expliquée coupe par coupe et les scores d’étendue utilisés en médecine interne.</p>
     </section>
-    <div class="filtres" id="filtres"></div>
+    <div class="filtres" id="filtres" role="group" aria-label="Filtrer les cas par catégorie"></div>
     <div class="cartes" id="cartes"></div>
-    <p class="etat erreur" id="erreur" hidden></p>
-    <div class="encadre">Outil pédagogique destiné aux internes. Il ne constitue pas une aide au diagnostic et ne remplace pas l’avis du radiologue. Chaque cas indique sa source, sa licence et s’il a été relu.</div>
+    <p class="etat erreur" id="erreur" role="alert" hidden></p>
+    <div class="encadre" role="note">Outil pédagogique destiné aux internes. Il ne constitue pas une aide au diagnostic et ne remplace pas l’avis du radiologue. Chaque cas indique sa source, sa licence et s’il a été relu.</div>
   </main>
   <footer class="pied"></footer>
 </body>

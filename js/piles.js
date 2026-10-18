@@ -4,8 +4,11 @@
 
 import { lireEntete, decoderPixels, construireSeries } from './dicom.js';
 
+// Cache LRU de promesses. `liberer(valeur)` est appelé sur chaque entrée évincée (fermeture des ImageBitmap :
+// leur mémoire, hors du tas JavaScript, n'est sinon rendue qu'au ramasse-miettes). La coupe affichée n'est jamais
+// évincée en pratique : le visualiseur la redemande à chaque changement et ne précharge que 5 voisines.
 class Cache {
-  constructor(taille) { this.taille = taille; this.m = new Map(); }
+  constructor(taille, liberer = null) { this.taille = taille; this.liberer = liberer; this.m = new Map(); }
   obtenir(cle, fabrique) {
     if (this.m.has(cle)) {
       const v = this.m.get(cle);
@@ -14,15 +17,21 @@ class Cache {
     }
     const v = fabrique();
     this.m.set(cle, v);
-    if (this.m.size > this.taille) this.m.delete(this.m.keys().next().value);
-    // En cas d'échec, ne pas garder la promesse rejetée en cache.
-    Promise.resolve(v).catch(() => this.m.delete(cle));
+    if (this.m.size > this.taille) {
+      const [ancienne, valeur] = this.m.entries().next().value;
+      this.m.delete(ancienne);
+      if (this.liberer) Promise.resolve(valeur).then(this.liberer, () => {});
+    }
+    // En cas d'échec, ne pas garder la promesse rejetée en cache (sauf si elle a déjà été remplacée).
+    Promise.resolve(v).catch(() => { if (this.m.get(cle) === v) this.m.delete(cle); });
     return v;
   }
 }
 
 export class PileDicom {
   constructor(serie) {
+    if (!serie?.coupes?.length) throw new Error('Série DICOM vide : aucune coupe à afficher.');
+    if (serie.nonSupporte) throw new Error(serie.nonSupporte);
     this.serie = serie;
     this.nombre = serie.coupes.length;
     this.calibre = serie.calibre;
@@ -37,10 +46,17 @@ export class PileDicom {
     return z == null ? '' : `z = ${z.toFixed(1)} mm`;
   }
   coupe(i) {
+    if (!Number.isInteger(i) || i < 0 || i >= this.nombre)
+      return Promise.reject(new RangeError(`Coupe ${i} inexistante (série de ${this.nombre} coupe(s)).`));
     return this.cache.obtenir(i, async () => {
       const { entete: m, source } = this.serie.coupes[i];
-      const octets = await source.slice(m.pixelOffset, m.pixelLongueur == null ? undefined : m.pixelOffset + m.pixelLongueur).arrayBuffer();
-      return { type: 'uh', largeur: m.colonnes, hauteur: m.lignes, donnees: decoderPixels(m, octets), inverse: m.photometrie === 'MONOCHROME1' };
+      try {
+        const octets = await source.slice(m.pixelOffset, m.pixelLongueur == null ? undefined : m.pixelOffset + m.pixelLongueur).arrayBuffer();
+        return { type: 'uh', largeur: m.colonnes, hauteur: m.lignes, donnees: decoderPixels(m, octets), inverse: m.photometrie === 'MONOCHROME1' };
+      } catch (e) {
+        const nom = source?.webkitRelativePath || source?.name;
+        throw new Error(`Coupe ${i + 1} / ${this.nombre} illisible${nom ? ` (${nom})` : ''} : ${e?.message || e}`);
+      }
     });
   }
 }
@@ -52,7 +68,7 @@ class PileImages {
     this.calibre = false;
     this.espacementPixel = null;
     this.espacementCoupes = null;
-    this.cache = new Cache(128);
+    this.cache = new Cache(128, (c) => c?.image?.close?.());
   }
   legende() { return ''; }
   coupe(i) {
@@ -117,22 +133,42 @@ export function pileUHDepuisFenetrePoumon(pile) {
     espacementCoupes: pile.espacementCoupes,
     async coupe(i) {
       const image = await pile.charger(urls[i]);
-      canvas.width = image.width;
-      canvas.height = image.height;
-      ctx.drawImage(image, 0, 0);
-      const px = ctx.getImageData(0, 0, image.width, image.height).data;
-      const donnees = new Int16Array(image.width * image.height);
+      const { width, height } = image;
+      let px;
+      try {
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(image, 0, 0);
+        px = ctx.getImageData(0, 0, width, height).data;
+      } finally {
+        image.close?.(); // bitmap local, jamais affiché : libéré tout de suite
+      }
+      const donnees = new Int16Array(width * height);
       for (let j = 0; j < donnees.length; j++) donnees[j] = Math.round((px[j * 4] / 255) * 1500 - 1350);
-      return { type: 'uh', largeur: image.width, hauteur: image.height, donnees };
+      return { type: 'uh', largeur: width, hauteur: height, donnees };
     },
   };
 }
 
 const estImage = (f) => /^image\/(jpeg|png|webp|bmp)$/.test(f.type) || /\.(jpe?g|png|webp|bmp)$/i.test(f.name);
 
+const TAILLE_ENTETE = 256 * 1024;
+
+// En-tête d'un fichier, ou null s'il n'est pas DICOM. Un fichier tronqué (copie interrompue) est signalé illisible.
+async function enteteFichier(f) {
+  let entete = lireEntete(await f.slice(0, TAILLE_ENTETE).arrayBuffer());
+  if (entete === null && f.size > TAILLE_ENTETE) entete = lireEntete(await f.arrayBuffer()); // en-tête volumineux
+  if (entete && !entete.nonSupporte) {
+    const fin = entete.pixelLongueur == null ? entete.pixelOffset + 1 : entete.pixelOffset + entete.pixelLongueur;
+    if (fin > f.size) entete.nonSupporte = `Fichier incomplet (${f.size} octets, ${fin} attendus) : copie interrompue ?`;
+  }
+  return entete;
+}
+
 // Lit des fichiers choisis par l'utilisateur. Seuls les en-têtes sont lus ici ; les pixels le sont à l'affichage.
-// Retourne { series: [...], images: File[], ignores: nombre }.
+// Retourne { series: [...], images: File[], ignores: nombre }. Un fichier illisible est ignoré sans interrompre la lecture.
 export async function analyserFichiers(fichiers, progression = () => {}) {
+  fichiers = [...(fichiers || [])];
   const entrees = [];
   const images = [];
   let ignores = 0;
@@ -140,8 +176,12 @@ export async function analyserFichiers(fichiers, progression = () => {}) {
   for (const f of fichiers) {
     if (estImage(f)) images.push(f);
     else {
-      let entete = lireEntete(await f.slice(0, 256 * 1024).arrayBuffer());
-      if (entete === null && f.size > 256 * 1024) entete = lireEntete(await f.arrayBuffer()); // en-tête volumineux
+      let entete = null;
+      try {
+        entete = await enteteFichier(f);
+      } catch (e) {
+        entete = null; // fichier inaccessible (droits, supprimé entre-temps…)
+      }
       if (entete) entrees.push({ entete, source: f });
       else ignores++;
     }

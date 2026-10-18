@@ -29,32 +29,39 @@ export const PARAMETRES = {
   surfaceMinLesionMm2: 15, // îlots plus petits ignorés (bruit)
 };
 
-// Images intégrales (somme sur un rectangle en O(1)).
-function integrale(w, h, valeur) {
+// Images intégrales (somme sur un rectangle en O(1)) d'un tableau de w × h valeurs.
+function integrale(w, h, a) {
   const I = new Float64Array((w + 1) * (h + 1));
   for (let y = 0; y < h; y++) {
     let ligne = 0;
+    const o = (y + 1) * (w + 1) + 1, p = y * (w + 1) + 1;
     for (let x = 0; x < w; x++) {
-      ligne += valeur(y * w + x);
-      I[(y + 1) * (w + 1) + x + 1] = I[y * (w + 1) + x + 1] + ligne;
+      ligne += a[y * w + x];
+      I[o + x] = I[p + x] + ligne;
     }
   }
   return I;
 }
 const rectangle = (I, w, x0, y0, x1, y1) => I[y1 * (w + 1) + x1] - I[y0 * (w + 1) + x1] - I[y1 * (w + 1) + x0] + I[y0 * (w + 1) + x0];
 
-// Filtres minimum et maximum 3×3 (érosion et dilatation en niveaux de gris).
-function filtre3(a, w, h, f) {
+// Filtres minimum (maxi = false) et maximum 3×3 séparables (érosion et dilatation en niveaux de gris) ; bords répliqués.
+function filtre3(a, w, h, maxi) {
   const t = new Int16Array(a.length), s = new Int16Array(a.length);
   for (let y = 0; y < h; y++)
     for (let x = 0; x < w; x++) {
       const i = y * w + x;
-      t[i] = f(f(a[i], x > 0 ? a[i - 1] : a[i]), x < w - 1 ? a[i + 1] : a[i]);
+      let v = a[i];
+      const g = x > 0 ? a[i - 1] : v, d = x < w - 1 ? a[i + 1] : v;
+      if (maxi) { if (g > v) v = g; if (d > v) v = d; } else { if (g < v) v = g; if (d < v) v = d; }
+      t[i] = v;
     }
   for (let y = 0; y < h; y++)
     for (let x = 0; x < w; x++) {
       const i = y * w + x;
-      s[i] = f(f(t[i], y > 0 ? t[i - w] : t[i]), y < h - 1 ? t[i + w] : t[i]);
+      let v = t[i];
+      const g = y > 0 ? t[i - w] : v, d = y < h - 1 ? t[i + w] : v;
+      if (maxi) { if (g > v) v = g; if (d > v) v = d; } else { if (g < v) v = g; if (d < v) v = d; }
+      s[i] = v;
     }
   return s;
 }
@@ -72,8 +79,8 @@ function lisser(a, w, h) {
     }
   return s;
 }
-const mini3 = (a, w, h) => filtre3(a, w, h, Math.min);
-const maxi3 = (a, w, h) => filtre3(a, w, h, Math.max);
+const mini3 = (a, w, h) => filtre3(a, w, h, false);
+const maxi3 = (a, w, h) => filtre3(a, w, h, true);
 
 // Garde les composantes (8-connexité) d'au moins `min` pixels dans un masque binaire (modifié sur place).
 function garderComposantes(m, w, h, min) {
@@ -149,10 +156,12 @@ export function classerCoupe(hu, largeur, hauteur, poumon, pixelMm, p = PARAMETR
   const fin = new Uint8Array(hu.length);
   for (let i = 0; i < fin.length; i++) fin[i] = lisse[i] - ouverture[i] >= p.topHatMin ? 1 : 0;
   garderComposantes(fin, largeur, hauteur, Math.max(3, Math.round(p.longueurMinFineMm / pixelMm)));
-  const Ifin = integrale(largeur, hauteur, (i) => fin[i]);
-  const In = integrale(largeur, hauteur, (i) => (denseDilate[i] ? 0 : 1));
-  const Is = integrale(largeur, hauteur, (i) => (denseDilate[i] ? 0 : hu[i]));
-  const Idense = integrale(largeur, hauteur, (i) => dense[i]);
+  const nonDense = new Uint8Array(dense.length), huNonDense = new Float32Array(dense.length);
+  for (let i = 0; i < dense.length; i++) if (!denseDilate[i]) { nonDense[i] = 1; huNonDense[i] = hu[i]; }
+  const Ifin = integrale(largeur, hauteur, fin);
+  const In = integrale(largeur, hauteur, nonDense);
+  const Is = integrale(largeur, hauteur, huNonDense);
+  const Idense = integrale(largeur, hauteur, dense);
 
   const r = Math.max(2, Math.round(p.fenetreMm / pixelMm / 2));
   const rf = Math.max(2, Math.round(p.fenetreFibroseMm / pixelMm / 2));
@@ -183,10 +192,10 @@ export function classerCoupe(hu, largeur, hauteur, poumon, pixelMm, p = PARAMETR
   return classes;
 }
 
-// Pourcentages de chaque lésion dans le poumon d'une ou plusieurs coupes.
+// Pourcentages de chaque lésion dans le poumon d'une ou plusieurs coupes (coupes absentes, null, ignorées).
 export function proportions(listeClasses) {
   const n = [0, 0, 0, 0, 0];
-  for (const classes of listeClasses) for (const c of classes) n[c]++;
+  for (const classes of listeClasses) if (classes) for (let i = 0; i < classes.length; i++) n[classes[i]]++;
   const poumon = n[1] + n[2] + n[3] + n[4];
   const pct = (k) => (poumon ? (100 * n[k]) / poumon : 0);
   return {

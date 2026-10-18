@@ -146,61 +146,215 @@ export function demiResolution(masque, largeur, hauteur) {
   return m;
 }
 
+// ── Erreurs et annulation ──────────────────────────────────────────────────
+// Les appelants affichent e.message tel quel : tous les messages sont donc rédigés en français.
+const erreurAnnulation = () => new DOMException('Opération annulée.', 'AbortError');
+function verifierAnnulation(signal) {
+  if (signal?.aborted) throw erreurAnnulation();
+}
+// Message lisible pour une erreur d'origine quelconque (onnxruntime lève parfois des chaînes, en anglais).
+function detailErreur(e) {
+  const brut = typeof e === 'string' ? e : e?.message || String(e ?? '');
+  if (e instanceof RangeError || /out of memory|\bOOM\b|allocation failed|memory access/i.test(brut)) {
+    return 'mémoire insuffisante (fermez d’autres onglets ou applications, puis réessayez)';
+  }
+  return brut || 'erreur inconnue';
+}
+// Rend la main au navigateur (affichage de la progression, clic sur « Annuler ») sans ralentir les calculs rapides.
+let derniereMain = 0;
+async function rendreLaMain() {
+  const t = globalThis.performance?.now() ?? Date.now();
+  if (t - derniereMain < 50) return;
+  await new Promise((ok) => setTimeout(ok, 0));
+  derniereMain = globalThis.performance?.now() ?? Date.now();
+}
+
 // Segmente toutes les coupes d'une pile. `executer(entree Float32Array) → logits Float32Array` est fourni par
 // l'appelant (onnxruntime-web dans le navigateur, onnxruntime-node dans les tests).
-export async function segmenterPile(pile, executer, progression = () => {}) {
+// options.signal (AbortSignal, facultatif) : interrompt la segmentation entre deux coupes (DOMException AbortError).
+export async function segmenterPile(pile, executer, progression = () => {}, { signal } = {}) {
   const masques = [];
   for (let k = 0; k < pile.nombre; k++) {
-    const c = await pile.coupe(k);
+    verifierAnnulation(signal);
+    let c;
+    try {
+      c = await pile.coupe(k);
+    } catch (e) {
+      throw new Error(`Lecture de la coupe ${k + 1} impossible : ${detailErreur(e)}`);
+    }
+    if (!c?.donnees || c.donnees.length !== c.largeur * c.hauteur) {
+      throw new Error(`La coupe ${k + 1} ne contient pas de valeurs en UH exploitables : segmentation impossible.`);
+    }
     const { entree, boite } = pretraiter(c.donnees, c.largeur, c.hauteur);
+    verifierAnnulation(signal);
     const logits = await executer(entree);
+    if (!logits || logits.length < 3 * TAILLE * TAILLE) throw new Error('Réponse inattendue du modèle de segmentation.');
     masques.push(demiResolution(remettreEnPlace(logits, boite, c.largeur, c.hauteur), c.largeur, c.hauteur));
     progression((k + 1) / pile.nombre);
+    await rendreLaMain();
   }
   return masques;
 }
 
 // ── Chargement dans le navigateur ──────────────────────────────────────────
 // onnxruntime-web (MIT) depuis le CDN jsDelivr ; WebGPU (carte graphique) si disponible, sinon WebAssembly (processeur).
+// Si la carte graphique est annoncée mais inutilisable (création de session ou première inférence en échec),
+// on bascule automatiquement sur le processeur.
 const ORT_VERSION = '1.22.0';
 const ORT_DIST = `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/dist/`;
 export const MODELES = { webgpu: 'modeles/lungmask_r231_fp16.onnx', wasm: 'modeles/lungmask_r231_int8.onnx' };
+const NOM_FOURNISSEUR = { webgpu: 'carte graphique', wasm: 'processeur' };
 
 async function telecharger(url, progression) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`Modèle introuvable (${r.status})`);
+  let r;
+  try {
+    r = await fetch(url);
+  } catch {
+    throw new Error('Téléchargement du modèle de segmentation impossible : vérifiez la connexion Internet, puis réessayez.');
+  }
+  if (!r.ok) throw new Error(`Modèle de segmentation introuvable sur le serveur (${url}, erreur ${r.status}).`);
   const total = +r.headers.get('content-length') || 0;
+  // Réponse compressée : la taille annoncée est celle des données compressées, pas celle reçue ici.
+  const compresse = !!r.headers.get('content-encoding');
+  if (!r.body) {
+    const octets = new Uint8Array(await r.arrayBuffer());
+    progression(1);
+    return octets;
+  }
   const lecteur = r.body.getReader();
+  // Taille connue : écriture directe dans le tampon final (évite d'avoir le modèle deux fois en mémoire).
+  let tampon = total && !compresse ? new Uint8Array(total) : null;
   const morceaux = [];
   let recu = 0;
-  for (;;) {
-    const { done, value } = await lecteur.read();
-    if (done) break;
-    morceaux.push(value);
-    recu += value.length;
-    if (total) progression(recu / total);
+  try {
+    for (;;) {
+      const { done, value } = await lecteur.read();
+      if (done) break;
+      if (tampon && recu + value.length <= tampon.length) tampon.set(value, recu);
+      else {
+        if (tampon) { morceaux.push(tampon.subarray(0, recu)); tampon = null; }
+        morceaux.push(value);
+      }
+      recu += value.length;
+      if (total) progression(Math.min(1, recu / total));
+    }
+  } catch {
+    throw new Error('Téléchargement du modèle de segmentation interrompu : vérifiez la connexion Internet, puis réessayez.');
+  } finally {
+    lecteur.releaseLock();
   }
+  if (total && !compresse && recu < total) {
+    throw new Error('Téléchargement du modèle de segmentation incomplet : vérifiez la connexion Internet, puis réessayez.');
+  }
+  progression(1);
+  if (tampon) return recu === tampon.length ? tampon : tampon.subarray(0, recu);
   const octets = new Uint8Array(recu);
   let o = 0;
   for (const m of morceaux) { octets.set(m, o); o += m.length; }
   return octets;
 }
 
-let chargement = null;
-// Retourne { fournisseur: 'webgpu' | 'wasm', executer(entree) → logits }.
-export function chargerModele(progression = () => {}) {
-  if (!chargement) {
-    chargement = (async () => {
-      const ort = await import(`${ORT_DIST}ort.webgpu.min.mjs`);
-      ort.env.wasm.wasmPaths = ORT_DIST;
-      const adaptateur = navigator.gpu ? await navigator.gpu.requestAdapter().catch(() => null) : null;
-      const fournisseur = adaptateur ? 'webgpu' : 'wasm';
-      const octets = await telecharger(MODELES[fournisseur], progression);
-      const session = await ort.InferenceSession.create(octets, { executionProviders: [fournisseur] });
-      const executer = async (entree) => (await session.run({ image: new ort.Tensor('float32', entree, [1, 1, TAILLE, TAILLE]) })).logits.data;
-      return { fournisseur, executer };
-    })();
-    chargement.catch(() => { chargement = null; });
+// Une inférence ; les tenseurs d'entrée et de sortie sont libérés explicitement (tampons WebGPU / WebAssembly).
+async function inferer(ort, session, entree) {
+  const tenseur = new ort.Tensor('float32', entree, [1, 1, TAILLE, TAILLE]);
+  let sorties;
+  try {
+    sorties = await session.run({ image: tenseur });
+    const logits = sorties.logits;
+    // Sorties en mémoire centrale par défaut ; getData() couvre le cas d'une sortie restée sur la carte graphique.
+    return logits.location && logits.location !== 'cpu' ? await logits.getData(true) : logits.data;
+  } finally {
+    tenseur.dispose?.();
+    for (const t of Object.values(sorties || {})) t.dispose?.();
   }
-  return chargement;
+}
+
+async function ouvrirSession(ort, fournisseur, progression) {
+  const octets = await telecharger(MODELES[fournisseur], progression);
+  let session;
+  try {
+    session = await ort.InferenceSession.create(octets, { executionProviders: [fournisseur] });
+    // Inférence d'essai sur la carte graphique : les incompatibilités (shaders, demi-précision) n'apparaissent qu'ici.
+    if (fournisseur === 'webgpu') await inferer(ort, session, new Float32Array(TAILLE * TAILLE));
+    return session;
+  } catch (e) {
+    await session?.release?.().catch(() => {});
+    throw new Error(`Initialisation du modèle de segmentation impossible (${NOM_FOURNISSEUR[fournisseur]}) : ${detailErreur(e)}`);
+  }
+}
+
+let chargement = null;
+let webgpuEnEchec = false; // la carte graphique a déjà échoué : on ne la réessaie pas avant rechargement de la page
+const abonnes = new Set(); // fonctions de progression de tous les appelants en attente du même chargement
+const diffuser = (f) => { for (const a of abonnes) { try { a(f); } catch { /* affichage seulement */ } } };
+
+async function charger() {
+  let ort;
+  try {
+    ort = await import(`${ORT_DIST}ort.webgpu.min.mjs`);
+  } catch {
+    throw new Error('Impossible de charger le moteur d’IA (onnxruntime-web) : vérifiez la connexion Internet ou désactivez le bloqueur de contenu pour ce site.');
+  }
+  ort.env.wasm.wasmPaths = ORT_DIST;
+  const adaptateur = !webgpuEnEchec && globalThis.navigator?.gpu ? await navigator.gpu.requestAdapter().catch(() => null) : null;
+  let fournisseur = adaptateur ? 'webgpu' : 'wasm';
+  let session;
+  try {
+    session = await ouvrirSession(ort, fournisseur, diffuser);
+  } catch (e) {
+    if (fournisseur !== 'webgpu') throw e;
+    console.warn('lungmask : carte graphique inutilisable, bascule sur le processeur.', e);
+    webgpuEnEchec = true;
+    fournisseur = 'wasm';
+    diffuser(0);
+    session = await ouvrirSession(ort, fournisseur, diffuser);
+  }
+
+  const promesseCourante = chargement; // déjà affectée : charger() a rendu la main au moins une fois
+  let actif = true;
+  const modele = {
+    fournisseur,
+    async executer(entree) {
+      if (!actif) throw new Error('Le modèle de segmentation a été libéré : relancez l’analyse.');
+      try {
+        return await inferer(ort, session, entree);
+      } catch (e) {
+        if (fournisseur !== 'webgpu') throw new Error(`Échec de la segmentation : ${detailErreur(e)}`);
+        // Carte graphique perdue en cours de route (pilote, mise en veille…) : la prochaine analyse utilisera le processeur.
+        webgpuEnEchec = true;
+        modele.liberer();
+        throw new Error(`La carte graphique a cessé de répondre pendant la segmentation (${detailErreur(e)}). Relancez l’analyse : le processeur sera utilisé.`);
+      }
+    },
+    // Libère la session ONNX (mémoire de la carte graphique ou du tas WebAssembly) ; un nouvel appel à chargerModele la recrée.
+    async liberer() {
+      if (!actif) return;
+      actif = false;
+      if (chargement === promesseCourante) chargement = null;
+      await session.release?.().catch(() => {});
+    },
+  };
+  return modele;
+}
+
+// Retourne { fournisseur: 'webgpu' | 'wasm', executer(entree) → logits, liberer() }.
+// Le modèle est chargé une seule fois ; options.signal permet à un appelant de cesser d'attendre (AbortError),
+// sans interrompre le téléchargement partagé, qui reste en cache pour la prochaine analyse.
+export function chargerModele(progression = () => {}, { signal } = {}) {
+  if (signal?.aborted) return Promise.reject(erreurAnnulation());
+  abonnes.add(progression);
+  if (!chargement) {
+    const p = charger();
+    chargement = p;
+    p.catch(() => { if (chargement === p) chargement = null; });
+  }
+  const p = chargement;
+  const fin = () => abonnes.delete(progression);
+  p.then(fin, fin);
+  if (!signal) return p;
+  return new Promise((ok, ko) => {
+    const surAbandon = () => { fin(); ko(erreurAnnulation()); };
+    signal.addEventListener('abort', surAbandon, { once: true });
+    p.then(ok, ko).finally(() => signal.removeEventListener('abort', surAbandon));
+  });
 }

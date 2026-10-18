@@ -21,7 +21,8 @@ const PINCEAUX = [
 ];
 
 const options = (libelles) => libelles.map((l, i) => `<option value="${i}">${l}</option>`).join('');
-const fmt = (v, d = 1) => v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+// Valeur absente (null : aucun voxel pulmonaire, volume non calculable) ou non finie : tiret plutôt qu'une exception.
+const fmt = (v, d = 1) => (Number.isFinite(v) ? v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—');
 
 // conteneur : élément du DOM ; visualiseur() : visualiseur actif ; reperesGoh : coupes proposées (numérotées à partir de 1)
 export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null } = {}) {
@@ -146,6 +147,9 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
 
   // Quantification semi-automatique
   let analyse = null; // { vis, pile, classes, valides: Set, niveauActif }
+  let enCours = null; // { pile, controleur: AbortController } : analyse lancée, annulée si l'on change de série ou quitte la page
+  const annuler = () => { enCours?.controleur.abort(); enCours = null; };
+  globalThis.addEventListener?.('pagehide', annuler);
   const sourceUH = (vis) => (vis?.pile?.calibre ? vis.pile : vis?.pile?.urlsParFenetre ? pileUHDepuisFenetrePoumon(vis.pile) : null);
   const majDisponibilite = () => {
     const vis = visualiseur();
@@ -153,9 +157,10 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
     $('[data-q-dispo]').hidden = !ok;
     $('[data-q-indispo]').hidden = ok;
     $('[data-q-approx]').hidden = !ok || !!vis.pile.calibre;
+    if (enCours && enCours.pile !== vis?.pile) annuler();
     if (analyse && analyse.pile !== vis?.pile) { analyse = null; $('[data-q-resultats]').hidden = true; }
   };
-  const pct = (v) => `${fmt(v)} %`;
+  const pct = (v) => (Number.isFinite(v) ? `${fmt(v)} %` : '—');
   const majNiveaux = () => {
     if (!analyse) return;
     const lignes = NIVEAUX_GOH.map((nom, i) => {
@@ -194,6 +199,10 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
     barre.hidden = false;
     bouton.disabled = true;
     const etat = $('[data-q-etat]');
+    annuler();
+    const controleur = new AbortController();
+    const { signal } = controleur;
+    enCours = { pile, controleur };
     try {
       const geometrie = {
         espacementPixel: pile.calibre ? pile.espacementPixel : [pile.pixelMm, pile.pixelMm],
@@ -204,16 +213,17 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
       let r;
       if ($('[data-q-segmentation]').value === 'lungmask') {
         etat.textContent = 'Téléchargement du modèle lungmask…';
-        const modele = await chargerModele((f) => { barre.value = f; });
+        const modele = await chargerModele((f) => { barre.value = f; }, { signal });
         if (modele.fournisseur === 'wasm') {
           // Sans carte graphique, une coupe tous les 5 mm (plus les niveaux de Goh) pour garder un temps raisonnable.
           const pas = Math.max(1, Math.round(5 / (geometrie.espacementCoupes || 5)));
           indices = [...new Set([...indices.filter((k) => k % pas === 0), ...niveaux.filter((k) => k != null)])].sort((a, b) => a - b);
-          geometrie.espacementCoupes = (geometrie.espacementCoupes || 1) * pas; // échantillonnage : volume non calculé
+          // Échantillonnage (plus les niveaux de Goh, irrégulièrement espacés) : volumes non calculés.
+          if (pas > 1) geometrie.espacementCoupes = null;
         }
         const sous = { nombre: indices.length, coupe: (i) => source.coupe(indices[i]) };
         etat.textContent = `Segmentation lungmask (${modele.fournisseur === 'webgpu' ? 'carte graphique, toutes les coupes' : `processeur, ${indices.length} coupes`})…`;
-        const masques = await segmenterPile(sous, modele.executer, (f) => { barre.value = f; });
+        const masques = await segmenterPile(sous, modele.executer, (f) => { barre.value = f; }, { signal });
         etat.textContent = 'Mesures…';
         r = await quantifierVolume(sous, geometrie, (f) => { barre.value = f; }, { masques });
         etat.textContent = `Segmentation : lungmask R231, ${modele.fournisseur === 'webgpu' ? 'toutes les coupes' : `${indices.length} coupes (1 tous les 5 mm + niveaux de Goh)`}.`;
@@ -221,7 +231,7 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
         r = await quantifierVolume(source, geometrie, (f) => { barre.value = f; });
         etat.textContent = 'Segmentation : seuillage à -200 UH (Best 2003), toutes les coupes.';
       }
-      if (vis.pile !== pile) return; // une autre série a été ouverte entre-temps
+      if (signal.aborted || vis.pile !== pile) { etat.textContent = ''; return; } // une autre série a été ouverte entre-temps
       // Replace les résultats sur la numérotation complète (null : coupe non analysée).
       const classes = new Array(pile.nombre).fill(null);
       indices.forEach((k, i) => { classes[k] = r.classes[i]; });
@@ -239,9 +249,11 @@ export function creerPanneauEtendue(conteneur, visualiseur, { reperesGoh = null 
       $('[data-q-resultats]').hidden = false;
       majNiveaux();
     } catch (e) {
+      if (e?.name === 'AbortError' || signal.aborted) { etat.textContent = 'Analyse annulée.'; return; }
       $('[data-q-volume]').textContent = `Analyse impossible : ${e.message}`;
       $('[data-q-resultats]').hidden = false;
     } finally {
+      if (enCours?.controleur === controleur) enCours = null;
       barre.hidden = true;
       bouton.disabled = false;
     }

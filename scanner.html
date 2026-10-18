@@ -4,16 +4,29 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mon scanner · PIDscope</title>
+  <meta name="description" content="Ouvrir un scanner DICOM ou des images dans le navigateur, comparer deux examens et mesurer l’étendue des PID. Aucune image n’est envoyée.">
+  <meta name="theme-color" content="#000000">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PIDscope">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Mon scanner · PIDscope">
+  <meta property="og:description" content="Ouvrir un scanner DICOM ou des images dans le navigateur, comparer deux examens et mesurer l’étendue des PID. Aucune image n’est envoyée.">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%23000' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M18 11c-4 1-8 8-8 15 0 3 2 4 4 3l4-2zM22 11c4 1 8 8 8 15 0 3-2 4-4 3l-4-2z' fill='%23fff'/%3E%3Cpath d='M20 7v9' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icones/icone.svg">
+  <script type="module" src="js/pwa.js"></script>
   <script src="vendor/dicomParser.min.js"></script>
   <script type="module" src="js/entete.js"></script>
   <script type="module" src="js/scanner.js"></script>
 </head>
 <body class="app" data-page="scanner.html">
+  <a class="lien-evitement" href="#contenu">Aller au contenu</a>
   <header class="entete"></header>
-  <div class="app-corps">
+  <div class="app-corps" id="contenu" role="main">
     <div class="app-image">
-      <div class="ecrans" id="ecrans">
+      <div class="ecrans" id="ecrans" role="region" aria-label="Visualiseur du scanner">
         <section class="ecran"><div class="ecran-titre"></div><div class="vis"></div></section>
         <section class="ecran" hidden><div class="ecran-titre"></div><div class="vis"></div></section>
       </div>
@@ -24,14 +37,14 @@
       <div class="chargeur" id="chargeur">
         <p><strong>Glissez ici un dossier DICOM ou des images</strong></p>
         <div class="actions">
-          <label class="bouton bouton-principal">Choisir un dossier<input type="file" id="choix-dossier" webkitdirectory multiple hidden></label>
-          <label class="bouton">Choisir des fichiers<input type="file" id="choix-fichiers" multiple hidden></label>
+          <label class="bouton bouton-principal">Choisir un dossier<input type="file" id="choix-dossier" webkitdirectory multiple class="visuellement-masque"></label>
+          <label class="bouton">Choisir des fichiers<input type="file" id="choix-fichiers" multiple class="visuellement-masque"></label>
         </div>
-        <p>🔒 Les images restent sur cet appareil : rien n’est envoyé.</p>
+        <p><span aria-hidden="true">🔒</span> Les images restent sur cet appareil : rien n’est envoyé.</p>
       </div>
       <p class="etat" id="etat" role="status"></p>
-      <ul class="liste-series" id="series"></ul>
-      <div id="barre-comparaison" hidden>
+      <ul class="liste-series" id="series" aria-label="Séries chargées"></ul>
+      <div id="barre-comparaison" role="group" aria-label="Comparaison de deux examens" hidden>
         <p style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
           <button type="button" id="ajouter-comparaison">Comparer avec un autre examen</button>
           <label id="option-synchro" hidden><input type="checkbox" id="synchro" checked> Défilement synchronisé</label>
