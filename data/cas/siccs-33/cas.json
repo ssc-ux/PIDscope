@@ -1,7 +1,7 @@
 {
   "id": "siccs-33",
   "titre": "Sclérodermie : PID, patient 33 (série complète)",
-  "description": "Série complète · lésions sur 100 % du poumon selon les experts",
+  "description": "Série complète · segmentation des experts sans poumon normal : étendue non interprétable",
   "categorie": "Connectivités",
   "maladies": [
     "Sclérodermie systémique"
@@ -35,11 +35,8 @@
   },
   "experts": {
     "modele": "experts/{n}.png",
-    "etendue": {
-      "fibrose": 49.8,
-      "verre_depoli": 50.2
-    },
-    "source": "Segmentation de la cohorte SICCS par deux experts (fibrose établie, fibrose fine / verre dépoli)."
+    "etendue": null,
+    "source": "Segmentation de la cohorte SICCS par deux experts (fibrose établie, fibrose fine / verre dépoli). Pour ce patient, tout le poumon est étiqueté lésion (aucun parenchyme normal) : l'étendue n'est pas interprétable et le cas est exclu de la validation."
   },
   "texte": "## Le cas\nPID d'un patient atteint de sclérodermie systémique (critères ACR/EULAR 2013), cohorte SICCS (Téhéran, scanners de pratique courante, appareils variés).\nAcquisition volumique : coupes de 0.7 mm, affichées toutes les 2.1 mm (113 coupes).\n\n## Exercice\n- Faites défiler toute la série : décrivez les lésions élémentaires (verre dépoli, réticulations, bronchectasies de traction, rayon de miel) et leur distribution.\n- Cherchez les signes associés : œsophage dilaté (fenêtre médiastin), respect sous-pleural.\n- Cotez l'étendue (onglet **Étendue**, score de Goh), puis comparez avec la **lecture des experts** (bouton ci-dessus).\n\n## Lecture des experts\nFibrose établie : **49.8 %** du poumon ; fibrose fine / verre dépoli : **50.2 %** ; total : **100.0 %**. Ces pourcentages sont volumiques : ils ne remplacent pas le score de Goh, estimé visuellement sur 5 niveaux."
 }

@@ -47,26 +47,26 @@
       </ol>
       <p><strong>Calibrage</strong> : sur le scanner normal, faux positifs 0,6 % (verre dépoli), 1,3 % (fibrose), 2 % (condensation) ; réticulations et rayon de miel synthétiques insérés dans ce poumon détectés à 87 % et 96 %. Validation externe ci-dessous.</p>
 
-      <h3>Validation externe sur 40 PID de sclérodermie (SICCS)</h3>
-      <p>Comparaison de la carte PIDscope à la segmentation de deux experts, cellule par cellule, dans le poumon délimité par les experts (31 millions de cellules ; 40 patients de la cohorte SICCS, scanners de pratique courante ; étendue des experts : fibrose établie 0 à 50 %, fibrose fine / verre dépoli 0 à 61 %) :</p>
+      <h3>Validation externe sur 39 PID de sclérodermie (SICCS)</h3>
+      <p>Comparaison de la carte PIDscope à la segmentation de deux experts, cellule par cellule, dans le poumon délimité par les experts (30 millions de cellules ; 39 patients de la cohorte SICCS, scanners de pratique courante ; étendue des experts : fibrose établie 0 à 29 %, fibrose fine / verre dépoli 0 à 61 % ; patient 33 exclu : tout son poumon est étiqueté lésion, sans parenchyme normal, ce qui rend son étendue inexploitable) :</p>
       <table>
         <tr><th>Mesure</th><th>Corrélation par patient (Spearman)</th><th>Écart moyen</th><th>Recouvrement (Dice)</th></tr>
-        <tr><td>Lésions totales (verre dépoli + fibrose)</td><td>ρ = 0,57 (p &lt; 0,001)</td><td>+5,9 points (surestimation)</td><td>0,57</td></tr>
-        <tr><td>Verre dépoli vs fibrose fine / verre dépoli</td><td>ρ = 0,66 (p &lt; 0,001)</td><td>+4,8 points</td><td>0,49</td></tr>
-        <tr><td>Fibrose vs fibrose établie</td><td>ρ = 0,24 (non significatif)</td><td>+1,1 point</td><td>0,22</td></tr>
-        <tr><td>HAA vs lésions totales des experts</td><td>ρ = 0,47 (p = 0,002)</td><td>—</td><td>—</td></tr>
-        <tr><td>Kurtosis vs lésions totales des experts</td><td>ρ = -0,40 (p = 0,01)</td><td>—</td><td>—</td></tr>
+        <tr><td>Lésions totales (verre dépoli + fibrose)</td><td>ρ = 0,54 (p &lt; 0,001)</td><td>+6,6 points (surestimation)</td><td>0,51</td></tr>
+        <tr><td>Verre dépoli vs fibrose fine / verre dépoli</td><td>ρ = 0,64 (p &lt; 0,001)</td><td>+4,5 points</td><td>0,43</td></tr>
+        <tr><td>Fibrose vs fibrose établie</td><td>ρ = 0,21 (non significatif)</td><td>+2,1 points</td><td>0,20</td></tr>
+        <tr><td>HAA vs lésions totales des experts</td><td>ρ = 0,43 (p = 0,006)</td><td>—</td><td>—</td></tr>
+        <tr><td>Kurtosis vs lésions totales des experts</td><td>ρ = -0,37 (p = 0,02)</td><td>—</td><td>—</td></tr>
       </table>
-      <p><strong>Conclusion</strong> : la carte estime correctement l’ordre de grandeur de l’atteinte totale et du verre dépoli, mais <strong>ne distingue pas de façon fiable la fibrose établie du verre dépoli</strong> (la fibrose établie des experts est classée normale dans 35 % des cas et verre dépoli dans 36 %). La segmentation pulmonaire par seuillage recouvre celle des experts avec un Dice médian de 0,965 (0,920 à 0,983).</p>
+      <p><strong>Conclusion</strong> : la carte estime correctement l’ordre de grandeur de l’atteinte totale et du verre dépoli, mais <strong>ne distingue pas de façon fiable la fibrose établie du verre dépoli</strong> (la fibrose établie des experts est classée normale dans 39 % des cas et verre dépoli dans 35 %). La segmentation pulmonaire par seuillage recouvre celle des experts avec un Dice médian de 0,965 (0,920 à 0,983).</p>
       <h3>Tentative de recalibrage (apprentissage / test)</h3>
-      <p>Les 40 patients ont été répartis en deux moitiés de même étendue d’atteinte (20 d’apprentissage, 20 de test ; 0,64 million de cellules tirées au sort). Sur la moitié d’apprentissage, 13 descripteurs locaux ont été calculés : densités, structures fines à trois contrastes, écart-type, kystes aériens, distance à la plèvre, hauteur dans le thorax. Avec ces descripteurs, on a ensuite testé une grille de 840 combinaisons de seuils, des arbres de décision et un modèle de « boosting » servant de plafond.</p>
+      <p>Les patients ont été répartis en deux moitiés de même étendue d’atteinte (20 d’apprentissage, 19 de test ; environ 0,6 million de cellules tirées au sort). Sur la moitié d’apprentissage, 13 descripteurs locaux ont été calculés : densités, structures fines à trois contrastes, écart-type, kystes aériens, distance à la plèvre, hauteur dans le thorax. Avec ces descripteurs, on a ensuite testé une grille de 840 combinaisons de seuils, des arbres de décision et un modèle de « boosting » servant de plafond.</p>
       <table>
-        <tr><th>Moitié test (20 patients)</th><th>Lésions totales : ρ / écart absolu / Dice</th><th>Fibrose : ρ / Dice</th><th>Verre dépoli : ρ / Dice</th></tr>
-        <tr><td>Réglages actuels</td><td>0,64 / 11,3 points / 0,59</td><td>0,37 / 0,21</td><td>0,65 / 0,48</td></tr>
-        <tr><td>Meilleurs seuils de la grille</td><td>0,63 / 10,4 points / 0,59</td><td>0,44 / 0,16</td><td>0,62 / 0,49</td></tr>
-        <tr><td>Boosting, 13 descripteurs (plafond)</td><td>0,65 / 12,6 points / 0,56</td><td>0,52 / 0,26</td><td>0,64 / 0,39</td></tr>
+        <tr><th>Moitié test (19 patients)</th><th>Lésions totales : ρ / écart absolu / Dice</th><th>Fibrose : ρ / Dice</th><th>Verre dépoli : ρ / Dice</th></tr>
+        <tr><td>Réglages actuels</td><td>0,58 / 10,8 points / 0,52</td><td>0,34 / 0,19</td><td>0,60 / 0,41</td></tr>
+        <tr><td>Meilleurs seuils de la grille</td><td>0,55 / 10,3 points / 0,47</td><td>0,38 / 0,16</td><td>0,55 / 0,37</td></tr>
+        <tr><td>Boosting, 13 descripteurs (plafond)</td><td>0,59 / 10,9 points / 0,48</td><td>0,43 / 0,19</td><td>0,58 / 0,31</td></tr>
       </table>
-      <p><strong>Conclusion</strong> : aucun réglage ne fait mieux de façon nette que les réglages actuels, qui sont <strong>conservés</strong>. Même le modèle le plus souple ne sépare pas la fibrose établie du verre dépoli (Dice ≤ 0,26). Avec des descripteurs de densité et de texture locale, la distinction semble hors de portée : elle exigerait un réseau entraîné sur des milliers de coupes annotées, comme CALIPER ou les logiciels commerciaux.</p>
+      <p><strong>Conclusion</strong> : aucun réglage ne fait mieux de façon nette que les réglages actuels, qui sont <strong>conservés</strong>. Même le modèle le plus souple ne sépare pas la fibrose établie du verre dépoli (Dice ≤ 0,19). Avec des descripteurs de densité et de texture locale, la distinction semble hors de portée : elle exigerait un réseau entraîné sur des milliers de coupes annotées, comme CALIPER ou les logiciels commerciaux.</p>
 
       <h2>5. Vérification semi-automatique et score de Goh <span class="badge relu">Validé</span> pour le score</h2>
       <ol>

@@ -464,7 +464,7 @@
   {
     "id": "siccs-33",
     "titre": "Sclérodermie : PID, patient 33 (série complète)",
-    "description": "Série complète · lésions sur 100 % du poumon selon les experts",
+    "description": "Série complète · segmentation des experts sans poumon normal : étendue non interprétable",
     "categorie": "Connectivités",
     "maladies": [
       "Sclérodermie systémique"
