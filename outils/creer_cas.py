@@ -1,4 +1,4 @@
-"""Convertit une série de scanner (dossier DICOM ou fichier NRRD) en pile d'images pour un cas PIDscope.
+"""Convertit une série de scanner (dossier DICOM, fichier NRRD ou NIfTI) en pile d'images pour un cas PIDscope.
 
     python3 outils/creer_cas.py <source> data/cas/<id> [--pas 2] [--debut 0.1 --fin 0.95] [--vignette 0.6]
 
@@ -6,7 +6,7 @@
   (droite du patient à gauche de l'image, face antérieure en haut).
 - Deux fenêtres exportées en WebP : poumon (L -600 / W 1500) et médiastin (L 40 / W 350).
 - Affiche les champs « serie » à reporter dans cas.json.
-Dépendances : pip install numpy pillow pydicom pynrrd
+Dépendances : pip install numpy pillow pydicom pynrrd nibabel
 """
 import argparse, json, os, sys
 from pathlib import Path
@@ -34,8 +34,29 @@ def lire_nrrd(chemin):
     pixel = abs(dirs[0][0]), abs(dirs[1][1])
     pas = abs(dirs[2][2])
     # Coupes [z][ligne = y][colonne = x], de l'apex (z max) vers les bases.
-    coupes = np.transpose(vol, (2, 1, 0))[::-1].astype(np.int16)
-    return coupes, pixel, pas
+    coupes = np.transpose(vol, (2, 1, 0))[::-1]
+    return (coupes.astype(np.int16) if UH else coupes), pixel, pas
+
+
+UH = True  # False pour lire une carte d'étiquettes
+
+
+def lire_nifti(chemin):
+    import nibabel as nib
+    img = nib.as_closest_canonical(nib.load(str(chemin)))  # axes RAS+ : x vers la droite, y vers l'avant, z vers le haut
+    vol = np.asarray(img.dataobj, dtype=np.float32)  # pente et ordonnée NIfTI appliquées
+    if vol.ndim != 3:
+        sys.exit(f'Volume NIfTI de dimension {vol.ndim} : non pris en charge.')
+    if UH and vol.min() >= 0:  # valeurs brutes sans recalibrage (air ≈ 0) : conversion en UH
+        print('Valeurs brutes détectées : UH = valeur - 1024', file=sys.stderr)
+        vol -= 1024
+    zx, zy, zz = (float(v) for v in img.header.get_zooms()[:3])
+    # Affichage radiologique : colonnes de la droite vers la gauche du patient, lignes de l'avant vers l'arrière,
+    # coupes de l'apex vers les bases.
+    coupes = np.transpose(vol[::-1, ::-1, ::-1], (2, 1, 0))
+    if not UH:
+        return coupes.astype(np.uint8), (zx, zy), zz
+    return np.clip(np.round(coupes), -32768, 32767).astype(np.int16), (zx, zy), zz
 
 
 def lire_dicom(dossier):
@@ -83,10 +104,12 @@ def main():
     p.add_argument('--fin', type=float, default=1.0)
     p.add_argument('--vignette', type=float, default=0.55, help='position de la coupe vignette (fraction)')
     p.add_argument('--qualite', type=int, default=85)
+    p.add_argument('--etiquettes', help="carte d'étiquettes d'experts (NRRD/NIfTI) alignée sur le volume, exportée à demi-résolution")
     a = p.parse_args()
 
     src = Path(a.source)
-    coupes, (px, py), pas = lire_nrrd(src) if src.suffix == '.nrrd' else lire_dicom(src)
+    lecteur = {'.nrrd': lire_nrrd, '.nii': lire_nifti, '.gz': lire_nifti}.get(src.suffix, lire_dicom)
+    coupes, (px, py), pas = lecteur(src)
     n = len(coupes)
     coupes = coupes[int(n * a.debut):int(np.ceil(n * a.fin)):a.pas]
     pas *= a.pas
@@ -101,6 +124,18 @@ def main():
             if im.size != taille:
                 im = im.resize(taille, Image.LANCZOS)
             im.save(sortie / nom / f'{i + 1:04d}.webp', quality=a.qualite, method=6)
+    if a.etiquettes:
+        global UH
+        UH = False
+        e = Path(a.etiquettes)
+        lab, _, _ = {'.nrrd': lire_nrrd, '.nii': lire_nifti, '.gz': lire_nifti}[e.suffix](e)
+        lab = lab[int(n * a.debut):int(np.ceil(n * a.fin)):a.pas]
+        if lab.shape != coupes.shape:
+            sys.exit(f'Étiquettes {lab.shape} et volume {coupes.shape} de tailles différentes.')
+        (sortie / 'experts').mkdir(exist_ok=True)
+        demi = (taille[0] // 2, taille[1] // 2)
+        for i, s_ in enumerate(lab):
+            Image.fromarray(s_.astype(np.uint8)).resize(demi, Image.NEAREST).save(sortie / 'experts' / f'{i + 1:04d}.png', optimize=True)
     v = Image.fromarray(fenetrer(coupes[int(len(coupes) * a.vignette)], *FENETRES['poumon']))
     v.resize((480, round(480 * taille[1] / taille[0])), Image.LANCZOS).save(sortie / 'vignette.webp', quality=80)
     poids = sum(f.stat().st_size for f in sortie.rglob('*.webp')) / 1e6

@@ -37,6 +37,11 @@ async function afficher(id) {
   $('#lecture').innerHTML = `
     <h1>${echapper(c.titre)}</h1>
     <p>${[...(c.maladies || []), ...(c.patterns || [])].map((t) => `<span class="badge">${echapper(t)}</span>`).join(' ')} ${badgeStatut(c)}</p>
+    ${c.experts ? `<div class="score" style="margin:.8rem 0">
+      <button type="button" id="experts">Afficher la lecture des experts</button>
+      <div class="legende-calque"><span class="fib">Fibrose établie</span><span class="vd">Fibrose fine / verre dépoli</span></div>
+      ${c.experts.etendue ? `<p class="note">Étendue mesurée sur la segmentation des experts : fibrose établie ${c.experts.etendue.fibrose.toLocaleString('fr-FR')} %, fibrose fine / verre dépoli ${c.experts.etendue.verre_depoli.toLocaleString('fr-FR')} % du poumon.</p>` : ''}
+      <p class="note">${echapper(c.experts.source || '')}</p></div>` : ''}
     <div class="texte">${rendreTexte(c.texte || '')}</div>
     ${c.liens?.length ? `<h2>Pour aller plus loin</h2><ul>${c.liens.map((l) => `<li>${lien(l.url, l.titre)}</li>`).join('')}</ul>` : ''}
     <div class="source">
@@ -47,6 +52,37 @@ async function afficher(id) {
     const n = e.target.closest('.lien-coupe')?.dataset.coupe;
     if (n) vis.allerA(+n - 1);
   });
+
+  // Segmentation des experts (images PNG demi-résolution : 1 poumon normal, 2 fibrose établie, 3 fibrose fine / verre dépoli).
+  const boutonExperts = $('#experts');
+  if (boutonExperts) {
+    let calque = null;
+    boutonExperts.addEventListener('click', async () => {
+      if (vis.calque && vis.calque === calque) {
+        vis.afficherCalque(!vis.calqueVisible);
+        boutonExperts.textContent = vis.calqueVisible ? 'Masquer la lecture des experts' : 'Afficher la lecture des experts';
+        return;
+      }
+      boutonExperts.disabled = true;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      const masques = [];
+      let l = 0, h = 0;
+      for (let i = 0; i < s.nombre; i++) {
+        boutonExperts.textContent = `Chargement… ${i + 1} / ${s.nombre}`;
+        const r = await fetch(base + c.experts.modele.replace('{n}', String(i + 1).padStart(s.chiffres || 4, '0')));
+        const img = await createImageBitmap(await r.blob());
+        l = canvas.width = img.width; h = canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        const px = ctx.getImageData(0, 0, l, h).data;
+        masques.push(Uint8Array.from({ length: l * h }, (_, j) => px[j * 4]));
+      }
+      calque = { largeur: l, hauteur: h, masques, palette: { 1: [94, 214, 160, 0.08], 2: [255, 90, 90, 0.55], 3: [245, 197, 66, 0.5] } };
+      vis.definirCalque(calque);
+      boutonExperts.disabled = false;
+      boutonExperts.textContent = 'Masquer la lecture des experts';
+    });
+  }
 
   const panneau = creerPanneauEtendue($('#etendue'), () => vis, { reperesGoh: c.niveaux_goh });
   panneau.majDisponibilite();

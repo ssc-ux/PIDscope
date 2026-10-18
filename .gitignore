@@ -3,3 +3,4 @@ node_modules/
 # Ne jamais versionner d'images de patients
 *.dcm
 !tests/fixtures/*.dcm
+__pycache__/
