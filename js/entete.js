@@ -14,6 +14,7 @@ const page = document.body.dataset.page;
 const entete = document.querySelector('header.entete');
 if (entete) {
   entete.innerHTML = `
+    <a class="retour" href="https://ssc-ux.github.io/MedInt-Tools/" title="Retour à MedInt Tools">‹ MedInt Tools</a>
     <a class="marque" href="./">${LOGO}PIDscope <span class="pastille">Médecine interne</span></a>
     <nav aria-label="Navigation principale">${PAGES.map(([href, nom]) => `<a href="${href}"${href === page ? ' aria-current="page"' : ''}>${nom}</a>`).join('')}</nav>`;
 }

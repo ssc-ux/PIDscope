@@ -118,7 +118,9 @@ progress { width: 100%; accent-color: var(--accent); }
   display: flex; align-items: center; justify-content: space-between; gap: .75rem 1rem; flex-wrap: wrap;
   padding: 14px var(--gouttiere); border-bottom: 1px solid var(--bord);
 }
-.marque { display: flex; align-items: center; gap: .7rem; min-width: 0; color: var(--texte); text-decoration: none; font-size: 1.15rem; font-weight: 600; }
+.retour { color: var(--texte-2); text-decoration: none; font-size: .8rem; font-weight: 500; white-space: nowrap; }
+.retour:hover { color: var(--texte); }
+.marque { margin-right: auto; display: flex; align-items: center; gap: .7rem; min-width: 0; color: var(--texte); text-decoration: none; font-size: 1.15rem; font-weight: 600; }
 .marque svg { width: 40px; height: 40px; flex: none; }
 .pastille { font-size: .72rem; font-weight: 600; color: var(--bleu-clair); background: var(--bleu-fond); border: 1px solid var(--bleu-bord); border-radius: var(--pilule); padding: .1rem .55rem; white-space: nowrap; }
 .entete nav { display: flex; gap: .5rem; flex-wrap: wrap; }
